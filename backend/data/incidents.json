@@ -1,0 +1,94 @@
+[
+  {
+    "id": "SOS-441537",
+    "type": "Panic / SOS Triggered",
+    "severity": "high",
+    "weight": 0.95,
+    "lat": 28.62,
+    "lng": 77.208,
+    "location": "28.62000, 77.20800",
+    "timestamp": "2026-09-30T11:04:01.537614",
+    "notes": "Emergency SOS activated via SafeRoute.AI panic button."
+  },
+  {
+    "id": "SOS-058235",
+    "type": "Panic / SOS Triggered",
+    "severity": "high",
+    "weight": 0.95,
+    "lat": 28.62,
+    "lng": 77.208,
+    "location": "28.62000, 77.20800",
+    "timestamp": "2026-09-30T10:57:38.235082",
+    "notes": "Emergency SOS activated via SafeRoute.AI panic button."
+  },
+  {
+    "id": "INC-89102",
+    "type": "Unlit / Broken Streetlights",
+    "severity": "medium",
+    "weight": 0.65,
+    "lat": 28.5244,
+    "lng": 77.21,
+    "timestamp": "2026-09-25T23:45:00Z",
+    "notes": "400-meter stretch with non-operational street lamps and dark tree cover."
+  },
+  {
+    "id": "INC-89103",
+    "type": "Suspicious Activity",
+    "severity": "high",
+    "weight": 0.85,
+    "lat": 28.59,
+    "lng": 77.08,
+    "timestamp": "2026-09-22T01:30:00Z",
+    "notes": "Isolated service road with loitering groups, low footfall."
+  },
+  {
+    "id": "INC-89104",
+    "type": "Harassment / Stalking",
+    "severity": "high",
+    "weight": 0.9,
+    "lat": 28.65,
+    "lng": 77.18,
+    "timestamp": "2026-09-18T22:15:00Z",
+    "notes": "Reported catcalling near unmonitored underpass, sparse police presence."
+  },
+  {
+    "id": "INC-89105",
+    "type": "Panic / SOS Triggered",
+    "severity": "high",
+    "weight": 0.95,
+    "lat": 28.6304,
+    "lng": 77.2295,
+    "timestamp": "2026-09-28T02:10:00Z",
+    "notes": "Emergency SOS triggered by solo commuter after taxi detour."
+  },
+  {
+    "id": "INC-89106",
+    "type": "Unlit Alleyway",
+    "severity": "medium",
+    "weight": 0.6,
+    "lat": 28.58,
+    "lng": 77.25,
+    "timestamp": "2026-09-14T23:05:00Z",
+    "notes": "Narrow connecting lane without public lighting, dead zone."
+  },
+  {
+    "id": "INC-89107",
+    "type": "Low Visibility / Construction Hazard",
+    "severity": "low",
+    "weight": 0.4,
+    "lat": 28.5562,
+    "lng": 77.125,
+    "timestamp": "2026-09-10T21:40:00Z",
+    "notes": "Flyover construction debris, reduced road width at night."
+  },
+  {
+    "id": "INC-89108",
+    "type": "Theft / Snatching Attempt",
+    "severity": "high",
+    "weight": 0.88,
+    "lat": 28.5355,
+    "lng": 77.31,
+    "timestamp": "2026-09-05T00:20:00Z",
+    "notes": "Mobile phone snatching report near metro station exit."
+  }
+]

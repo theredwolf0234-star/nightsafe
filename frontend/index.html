@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeRoute.AI — Night Travel Guardian & AI Risk Engine</title>
+  <meta name="description" content="SafeRoute.AI helps night commuters navigate safely using AI-powered lighting-aware route optimization, crime heatmaps, safe haven proximity, and instant emergency tools.">
+  <meta name="keywords" content="SafeRoute, Night Travel Safety, AI Risk Engine, Street Lighting, Women Safety, Emergency SOS, Mapbox">
+  <meta name="author" content="SafeRoute.AI Team">
+
+  <!-- Fonts & Mapbox Stylesheets -->
+  <link rel="stylesheet" href="assets/fonts/inter.css">
+  <link rel="stylesheet" href="css/mapbox-gl.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    // Dynamically load Mapbox token from backend environment if running
+    fetch('/api/config')
+      .then(res => res.json())
+      .then(cfg => {
+        if (cfg && cfg.mapboxToken) {
+          window.MAPBOX_ACCESS_TOKEN = cfg.mapboxToken;
+          if (typeof mapboxgl !== 'undefined') mapboxgl.accessToken = cfg.mapboxToken;
+        }
+      })
+      .catch(() => {});
+  </script>
+</head>
+<body>
+
+  <!-- Floating Toast Notification -->
+  <div id="toast" class="hidden"></div>
+
+  <!-- Main Navigation Header -->
+  <header>
+    <div class="header-container">
+      <button onclick="show('home')" class="brand-btn" id="navBrandBtn">
+        <div class="brand-icon">S</div>
+        <div>
+          <div class="brand-title">SafeRoute<span>.AI</span></div>
+          <div class="brand-sub">Night Travel Guardian</div>
+        </div>
+      </button>
+
+      <nav class="nav-links">
+        <button data-nav="home" onclick="show('home')" class="nav-btn nav-active" id="navHome">Home</button>
+        <button data-nav="planner" onclick="show('planner')" class="nav-btn" id="navPlanner">Journey Planner &amp; Risk Engine</button>
+        <button data-nav="live" onclick="show('live')" class="nav-btn" id="navLive">Live Journey Guard</button>
+        <button data-nav="contacts" onclick="show('contacts')" class="nav-btn" id="navContacts">Trusted Contacts</button>
+        <button data-nav="reports" onclick="show('reports')" class="nav-btn" id="navReports">Incident Log</button>
+      </nav>
+
+      <div class="header-actions">
+        <div id="backendStatusBadge" class="backend-badge" title="Checking server status...">
+          <span class="badge-dot"></span> Checking AI Engine...
+        </div>
+        <button onclick="openSOS()" class="btn-sos pulse" id="headerSosBtn">
+          🚨 SOS
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Views -->
+  <main>
+
+    <!-- SECTION 1: HOME DASHBOARD -->
+    <section id="home" class="page">
+      <div class="hero-card">
+        <div class="hero-glow"></div>
+        <div style="position: relative; z-index: 2;">
+          <div class="hero-tag">✨ AI-POWERED NOCTURNAL SAFETY &amp; RISK OPTIMIZATION</div>
+          <h1 class="hero-title">The safest route is better than the fastest route.</h1>
+          <p class="hero-desc">
+            Standard maps only optimize for travel speed. <b>SafeRoute.AI</b> prioritizes human safety: evaluating streetlamp lumen density, 24/7 safe havens, and crime risk density to keep you protected after dark.
+          </p>
+          <div class="hero-actions">
+            <button onclick="show('planner')" class="btn-primary" id="heroStartBtn">
+              🚀 Launch AI Journey Planner
+            </button>
+            <button onclick="detectLocation()" class="btn-outline" id="heroGpsBtn">
+              📍 Detect My Location
+            </button>
+            <button onclick="openSOS()" class="btn-danger-outline" id="heroSosBtn">
+              🚨 Emergency SOS
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Feature Metrics -->
+      <div class="stats-banner">
+        <div class="stat-box">
+          <div class="stat-icon" style="color: #10b981;">💡</div>
+          <div>
+            <div class="stat-val">91%+</div>
+            <div class="stat-lbl">Continuous Lighting Target</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon" style="color: #38bdf8;">🛡️</div>
+          <div>
+            <div class="stat-val">10+</div>
+            <div class="stat-lbl">24/7 Police &amp; Haven Hubs</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon" style="color: #a855f7;">🧠</div>
+          <div>
+            <div class="stat-val">Multi-Factor</div>
+            <div class="stat-lbl">AI Risk Engine Calibration</div>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon" style="color: #f59e0b;">⏱️</div>
+          <div>
+            <div class="stat-val">Real-Time</div>
+            <div class="stat-lbl">Nocturnal GPS Guard</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emergency Helplines Section -->
+      <div class="helplines-section">
+        <div class="section-head">
+          <div>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: #ffffff; display: flex; align-items: center; gap: 8px;">
+              🛡️ Emergency Helpline Quick Dial
+            </h3>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 2px;">
+              One-tap direct dialers for national emergency services and law enforcement control rooms.
+            </p>
+          </div>
+          <span class="backend-badge" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.35); color: #fca5a5;">
+            DIRECT DISPATCH
+          </span>
+        </div>
+
+        <div class="helplines-grid">
+          <a href="tel:112" class="dial-card red" id="dial112">
+            <div>
+              <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">All-in-One Emergency</div>
+              <div class="dial-number risk-high">112</div>
+            </div>
+            <div class="dial-btn-circle" style="color: #f87171;">📞</div>
+          </a>
+
+          <a href="tel:1091" class="dial-card" id="dial1091">
+            <div>
+              <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">Women Helpline</div>
+              <div class="dial-number risk-low">1091</div>
+            </div>
+            <div class="dial-btn-circle" style="color: #34d399;">📞</div>
+          </a>
+
+          <a href="tel:100" class="dial-card cyan" id="dial100">
+            <div>
+              <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">Police Control Room</div>
+              <div class="dial-number" style="color: #38bdf8;">100 / 102</div>
+            </div>
+            <div class="dial-btn-circle" style="color: #38bdf8;">📞</div>
+          </a>
+
+          <a href="tel:108" class="dial-card amber" id="dial108">
+            <div>
+              <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase;">Medical Ambulance</div>
+              <div class="dial-number risk-med">108</div>
+            </div>
+            <div class="dial-btn-circle" style="color: #fbbf24;">📞</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: JOURNEY PLANNER & RISK ENGINE -->
+    <section id="planner" class="page hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2 style="font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em;">
+            AI Lighting-Aware Journey Planner
+          </h2>
+          <p style="font-size: 0.9rem; color: #94a3b8;">
+            Evaluates roadway illumination, time-of-night curfew risk, and emergency safe havens.
+          </p>
+        </div>
+        <button onclick="toggleHeatmap()" id="heatmapToggleBtn" class="btn-outline" style="border-color: rgba(52, 211, 153, 0.4); background: rgba(16, 185, 129, 0.1);">
+          🔥 <span id="heatmapBtnText">Turn On Safety Heatmap</span>
+        </button>
+      </div>
+
+      <div class="grid-planner">
+        <!-- Input Sidebar -->
+        <div class="glass" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.15rem;">
+          <div>
+            <label class="form-label">CURRENT LOCATION (ORIGIN)</label>
+            <div style="display: flex; gap: 8px;">
+              <input id="origin" class="form-input" placeholder="e.g. Connaught Place or use GPS" value="Connaught Place, New Delhi">
+              <button onclick="detectLocation()" class="btn-outline" style="padding: 0.75rem 0.9rem;" title="Detect Current GPS Location">📍</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label">DESTINATION</label>
+            <input id="destination" class="form-input" placeholder="e.g. Saket, Delhi or AIIMS" value="Hauz Khas, New Delhi">
+          </div>
+
+          <div class="grid-cols-2">
+            <div>
+              <label class="form-label">DEPARTURE TIME</label>
+              <input id="departure" type="time" class="form-input" value="23:30">
+            </div>
+            <div>
+              <label class="form-label">TRAVEL MODE</label>
+              <select id="mode" class="form-select">
+                <option value="driving">Car / Cab</option>
+                <option value="cycling">Bike / Scooter</option>
+                <option value="walking">Walking</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="planRoute()" class="btn-primary" style="width: 100%; justify-content: center;" id="calcRoutesBtn">
+            ⚡ Calculate Safe Routes via AI Engine
+          </button>
+
+          <div style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+              <span class="form-label" style="margin: 0;">EVALUATED SAFETY CORRIDORS</span>
+              <span style="font-size: 11px; color: #34d399; font-weight: 700;">AI OPTIMIZED</span>
+            </div>
+            <div id="routeList">
+              <div class="route-card selected" onclick="planRoute()">
+                <div style="display: flex; justify-content: space-between;">
+                  <b>Primary Lit Route</b>
+                  <b class="risk-low">92% Lit</b>
+                </div>
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">
+                  Click "Calculate Safe Routes" to run AI evaluation
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Map & AI Analytics Column -->
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <div id="map"></div>
+
+          <div id="routeInfo" class="card" style="padding: 1rem 1.25rem; font-size: 0.9rem;">
+            <b>Select origin and destination to execute multi-factor AI risk assessment.</b>
+            <span style="color: #94a3b8; margin-left: 6px;">Routes evaluate lux illumination, CCTV density, and emergency havens.</span>
+          </div>
+
+          <!-- Explainable AI Metrics Breakdown -->
+          <div id="aiMetricsBreakdown"></div>
+
+          <!-- Side-by-Side Comparison Grid -->
+          <div class="glass" style="padding: 1.25rem;">
+            <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+              💡 Lighting-Aware Side-by-Side Route Comparison
+            </h3>
+            <div id="compareDetailsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+              <div class="card" style="padding: 1rem; text-align: center; color: #94a3b8;">
+                Calculate a route above to view the comparative risk matrix.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: LIVE JOURNEY GUARD -->
+    <section id="live" class="page hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+          <h2 style="font-size: 1.85rem; font-weight: 800;">Live Journey Guard</h2>
+          <p style="font-size: 0.9rem; color: #94a3b8;">
+            Active GPS telemetry, route anomaly detection, and automated emergency triggers.
+          </p>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button onclick="startTracking()" class="btn-primary" id="liveStartBtn">
+            🟢 Start GPS Tracking
+          </button>
+          <button onclick="startSimulatedNightWalk()" class="btn-outline" style="border-color: #38bdf8; color: #38bdf8;" id="liveSimBtn" title="Test without walking outdoors">
+            🧪 Simulate Night Walk
+          </button>
+          <button onclick="stopTracking()" class="btn-outline" id="liveStopBtn">
+            ⏹️ Stop
+          </button>
+          <button onclick="openSOS()" class="btn-sos" id="liveSosBtn">
+            🚨 SOS
+          </button>
+        </div>
+      </div>
+
+      <div class="grid-planner">
+        <div id="liveMap" style="min-height: 520px;"></div>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="grid-cols-2">
+            <div class="card" style="padding: 1.15rem;">
+              <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">GPS Status</div>
+              <div id="gpsStatus" style="font-weight: 800; font-size: 1.1rem; margin-top: 4px; color: #94a3b8;">Not active</div>
+            </div>
+            <div class="card" style="padding: 1.15rem;">
+              <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Telemetry Pings</div>
+              <div id="gpsCount" style="font-weight: 800; font-size: 1.1rem; margin-top: 4px; color: #34d399;">0</div>
+            </div>
+          </div>
+
+          <div class="glass" style="padding: 1.25rem;">
+            <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase;">CURRENT COORDINATES</div>
+            <div id="coords" style="font-family: monospace; font-size: 1rem; color: #34d399; margin: 8px 0; word-break: break-all;">
+              Waiting for GPS lock…
+            </div>
+            <button onclick="shareCurrentLocation()" class="btn-outline" style="width: 100%; justify-content: center;">
+              🔗 Share Live Location Link
+            </button>
+          </div>
+
+          <div class="glass" style="padding: 1.25rem; flex: 1;">
+            <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 0.75rem;">Safety Activity Ticker</h4>
+            <div id="feed" style="max-height: 250px; overflow-y: auto;">
+              <div class="card" style="padding: 0.6rem 0.85rem; font-size: 0.8rem; color: #94a3b8;">
+                Ready. Click "Start GPS Tracking" or "Simulate Night Walk" to begin telemetry monitoring.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: TRUSTED CONTACTS -->
+    <section id="contacts" class="page hidden">
+      <div>
+        <h2 style="font-size: 1.85rem; font-weight: 800;">Trusted Emergency Contacts</h2>
+        <p style="font-size: 0.9rem; color: #94a3b8;">
+          Contacts receive automated SMS alerts and one-tap dialing during emergencies.
+        </p>
+      </div>
+
+      <div class="grid-planner">
+        <form onsubmit="addContact(event)" class="glass" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+          <h3 style="font-size: 1.1rem; font-weight: 800;">Add New Guardian</h3>
+          <div>
+            <label class="form-label">Full Name</label>
+            <input id="cName" required class="form-input" placeholder="e.g. Tannu Gupta">
+          </div>
+          <div>
+            <label class="form-label">Mobile Number</label>
+            <input id="cPhone" required type="tel" class="form-input" placeholder="e.g. 9811002233">
+          </div>
+          <div>
+            <label class="form-label">Relationship</label>
+            <select id="cRel" class="form-select">
+              <option>Family</option>
+              <option>Friend</option>
+              <option>Guardian</option>
+              <option>Colleague</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary" style="justify-content: center; width: 100%;">
+            + Save Trusted Contact
+          </button>
+        </form>
+
+        <div class="glass" style="padding: 1.5rem;">
+          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem;">Your Guardians</h3>
+          <div id="contactsList">
+            <p class="text-slate-500 text-sm">Loading contacts...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: SOS & INCIDENT REPORTS -->
+    <section id="reports" class="page hidden">
+      <div>
+        <h2 style="font-size: 1.85rem; font-weight: 800;">SOS &amp; Incident Security Log</h2>
+        <p style="font-size: 0.9rem; color: #94a3b8;">
+          Contribute anonymous safety observations to the community AI risk model.
+        </p>
+      </div>
+
+      <div class="grid-planner">
+        <form onsubmit="saveSosReport(event)" class="glass" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+          <h3 style="font-size: 1.1rem; font-weight: 800;">Log Incident / Road Hazard</h3>
+          <div>
+            <label class="form-label">Incident Category</label>
+            <select id="repType" class="form-select">
+              <option>Panic / SOS Triggered</option>
+              <option>Unlit / Broken Streetlights</option>
+              <option>Suspicious Activity</option>
+              <option>Harassment / Stalking</option>
+              <option>Isolated Underpass / Alleyway</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Location / Coordinates</label>
+            <div style="display: flex; gap: 8px;">
+              <input id="repLoc" required class="form-input" placeholder="e.g. 28.6139, 77.2090">
+              <button type="button" onclick="fillReportLocation()" class="btn-outline" style="padding: 0.75rem 0.9rem;" title="Capture GPS coordinates">📍</button>
+            </div>
+          </div>
+          <div>
+            <label class="form-label">Incident Notes &amp; Description</label>
+            <textarea id="repNotes" rows="3" required class="form-input" placeholder="Describe the safety hazard or condition observed…"></textarea>
+          </div>
+          <button type="submit" class="btn-primary" style="background: #dc2626; color: #ffffff; justify-content: center; width: 100%;">
+            💾 Save to Security Database
+          </button>
+        </form>
+
+        <div class="glass" style="padding: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800;">Recorded Incidents</h3>
+            <button onclick="exportReports()" class="btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+              📥 Export JSON
+            </button>
+          </div>
+          <div id="reportsList">
+            <p class="text-slate-500 text-sm">Loading security reports...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- EMERGENCY SOS MODAL -->
+  <div id="sosModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div style="font-size: 3.5rem;">🚨</div>
+      <h2 style="font-size: 1.75rem; font-weight: 900; margin-top: 0.5rem; color: #ffffff;">EMERGENCY SOS</h2>
+      <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem;">
+        Alarm sounding! Countdown allows cancellation if triggered accidentally.
+      </p>
+
+      <div id="sosTimer" class="sos-countdown">5</div>
+
+      <div style="display: flex; gap: 10px;">
+        <button onclick="cancelSOS()" class="btn-outline" style="flex: 1; justify-content: center;">
+          Cancel
+        </button>
+        <button onclick="sendSOS()" class="btn-primary" style="flex: 1; background: #dc2626; color: #ffffff; justify-content: center;">
+          Send Alert Now
+        </button>
+      </div>
+
+      <div id="sosResult"></div>
+    </div>
+  </div>
+
+  <!-- Application Scripts in Dependency Order -->
+  <script src="js/lib/mapbox-gl.js"></script>
+  <script src="backend/ai_risk_engine/risk_engine.js"></script>
+  <script src="js/ai-risk-client.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/live-guard.js"></script>
+  <script src="js/contacts.js"></script>
+  <script src="js/incidents.js"></script>
+  <script src="js/sos.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>

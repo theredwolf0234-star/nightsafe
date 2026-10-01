@@ -1,0 +1,22 @@
+{
+  "name": "saferoute-ai",
+  "version": "2.1.0",
+  "description": "SafeRoute.AI - Night Travel Guardian with AI-Powered Safety Risk Engine",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js",
+    "python-server": "python backend/server.py",
+    "test": "python backend/tests/test_risk_engine.py"
+  },
+  "keywords": [
+    "safety",
+    "night-travel",
+    "mapbox",
+    "ai-risk-engine",
+    "gps-tracking",
+    "emergency-sos"
+  ],
+  "author": "Sparsh",
+  "license": "MIT"
+}
