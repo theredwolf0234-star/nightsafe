@@ -1,4 +1,26 @@
-﻿{
-  "version": 2,
-  "cleanUrls": true
+{
+  "cleanUrls": true,
+  "buildCommand": "node build-web.js",
+  "outputDirectory": "public",
+  "headers": [
+    {
+      "source": "/SafeRoute-AI.apk",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/vnd.android.package-archive"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=\"SafeRoute-AI.apk\""
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/download-apk",
+      "destination": "/SafeRoute-AI.apk"
+    }
+  ]
 }

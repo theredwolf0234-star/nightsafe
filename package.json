@@ -4,6 +4,7 @@
   "description": "SafeRoute.AI - Night Travel Guardian with AI-Powered Safety Risk Engine",
   "main": "backend/server.js",
   "scripts": {
+    "build": "node build-web.js",
     "start": "node backend/server.js",
     "dev": "node backend/server.js",
     "python-server": "python backend/server.py",
