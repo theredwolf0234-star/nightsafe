@@ -36,8 +36,10 @@ function show(pageId) {
   if (target) target.classList.remove('hidden');
 
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('nav-active'));
-  const activeBtn = document.querySelector(`[data-nav="${pageId}"]`);
-  if (activeBtn) activeBtn.classList.add('nav-active');
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('nav-active'));
+  
+  const activeBtns = document.querySelectorAll(`[data-nav="${pageId}"]`);
+  activeBtns.forEach(b => b.classList.add('nav-active'));
 
   if (pageId === 'planner') {
     setTimeout(initMap, 150);
@@ -360,3 +362,93 @@ window.addEventListener('load', () => {
 
   show('home');
 });
+
+// Mobile App & PWA Installation Logic
+let deferredPwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPwaPrompt = e;
+  const btn = $('pwaInstallBtn');
+  if (btn) {
+    btn.innerHTML = '📲 Install App (Ready)';
+    btn.classList.add('pulse');
+  }
+});
+
+function detectPlatform() {
+  const ua = navigator.userAgent || '';
+  const platform = navigator.platform || '';
+  if (/iPad|iPhone|iPod/.test(ua) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+    return 'ios';
+  }
+  if (/Android/.test(ua)) {
+    return 'android';
+  }
+  if (/Mac/.test(platform) || /Macintosh/.test(ua)) {
+    return 'mac';
+  }
+  if (/Win/.test(platform) || /Windows/.test(ua)) {
+    return 'windows';
+  }
+  return 'other';
+}
+
+function openAppModal() {
+  const os = detectPlatform();
+  const badge = $('detectedOsBadge');
+  const iosGuide = $('iosInstallGuide');
+  
+  if (badge) {
+    if (os === 'android') {
+      badge.innerHTML = '🤖 Android Device';
+      badge.style.color = '#34d399';
+      badge.style.borderColor = 'rgba(52, 211, 153, 0.4)';
+    } else if (os === 'ios') {
+      badge.innerHTML = '🍎 Apple iOS Device';
+      badge.style.color = '#f472b6';
+      badge.style.borderColor = 'rgba(244, 114, 182, 0.4)';
+    } else if (os === 'windows') {
+      badge.innerHTML = '🪟 Windows PC';
+      badge.style.color = '#38bdf8';
+      badge.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+    } else if (os === 'mac') {
+      badge.innerHTML = '🍏 macOS Device';
+      badge.style.color = '#cbd5e1';
+      badge.style.borderColor = 'rgba(203, 213, 225, 0.4)';
+    } else {
+      badge.innerHTML = '🌐 Universal Device';
+    }
+  }
+
+  if (iosGuide) {
+    iosGuide.style.display = os === 'ios' ? 'block' : 'block'; // Always visible with highlighted instructions
+  }
+
+  const modal = $('appModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAppModal() {
+  const modal = $('appModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function installPWA() {
+  if (deferredPwaPrompt) {
+    deferredPwaPrompt.prompt();
+    deferredPwaPrompt.userChoice.then(choiceResult => {
+      if (choiceResult.outcome === 'accepted') {
+        showToast('App installed to your device successfully!');
+        closeAppModal();
+      }
+      deferredPwaPrompt = null;
+    });
+  } else {
+    showToast('To install: click your browser menu (⋮ or Share) and choose "Add to Home Screen" or "Install App".');
+  }
+}
+
+// Service Worker Registration for Offline App Execution
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}

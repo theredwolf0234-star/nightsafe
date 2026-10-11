@@ -2,19 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>Women's Safety — Night Travel Guardian &amp; AI Risk Engine</title>
   <meta name="description" content="Women's Safety helps night commuters and women navigate safely using AI-powered lighting-aware route optimization, crime heatmaps, safe haven proximity, and instant emergency tools.">
   <meta name="keywords" content="Women's Safety, Night Travel Safety, AI Risk Engine, Street Lighting, Women Safety, Emergency SOS, Mapbox">
   <meta name="author" content="Women's Safety Team">
 
+  <!-- Android, Windows, macOS & PWA Theme Metadata -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#030812">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Women's Safety">
+
+  <!-- Apple iOS (iPhone & iPad) Safari Web App Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Women's Safety">
+  <link rel="apple-touch-icon" href="assets/images/icon-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/images/icon-192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="assets/images/icon-512.png">
+
+  <!-- Microsoft Windows Tile & Edge App Meta Tags -->
+  <meta name="msapplication-TileColor" content="#030812">
+  <meta name="msapplication-TileImage" content="assets/images/icon-192.png">
+  <meta name="msapplication-config" content="none">
+
   <!-- Fonts & Mapbox Stylesheets -->
   <link rel="stylesheet" href="assets/fonts/inter.css">
   <link rel="stylesheet" href="css/mapbox-gl.css">
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#030812">
-  <link rel="apple-touch-icon" href="assets/images/icon-192.png">
 </head>
 <body>
 
@@ -486,78 +502,122 @@
     </div>
   </div>
 
-  <!-- GET MOBILE APP / PWA MODAL -->
+  <!-- GET MOBILE & DESKTOP APP MODAL (Android, iOS, Windows, Mac) -->
   <div id="appModal" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width: 620px; text-align: left; border-color: rgba(56, 189, 248, 0.4);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem;">
+    <div class="modal-content" style="max-width: 680px; text-align: left; border-color: rgba(56, 189, 248, 0.4);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem; flex-wrap: wrap; gap: 8px;">
         <div style="display: flex; align-items: center; gap: 12px;">
           <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #10b981, #06b6d4); display: grid; place-items: center; font-size: 1.4rem;">
             📱
           </div>
           <div>
-            <h3 style="font-size: 1.2rem; font-weight: 800; color: #ffffff;">Get the Women's Safety App</h3>
-            <div style="font-size: 0.78rem; color: #38bdf8;">Choose your preferred installation method</div>
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: #ffffff;">Get SafeRoute.AI App</h3>
+            <div style="font-size: 0.78rem; color: #38bdf8;">Multi-Platform: Android • iOS • Windows • macOS</div>
           </div>
         </div>
-        <button onclick="closeAppModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.35rem; cursor: pointer; padding: 4px;">✕</button>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span id="detectedOsBadge" class="backend-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">🌐 Cross-Platform</span>
+          <button onclick="closeAppModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.35rem; cursor: pointer; padding: 4px;">✕</button>
+        </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
-        <!-- Option 1: Native APK -->
+      <!-- Platform Selection Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">
+        
+        <!-- 1. Android Native APK -->
         <div class="card" style="padding: 1.25rem; border-color: rgba(16, 185, 129, 0.4); background: rgba(6, 20, 34, 0.85); display: flex; flex-direction: column; justify-content: space-between;">
           <div>
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
               <span style="font-size: 1.8rem;">🤖</span>
               <span class="backend-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">Android APK</span>
             </div>
-            <h4 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Native Android App</h4>
-            <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.45; margin-bottom: 1rem;">
-              Production release APK signed with v2/v3 signatures. Full offline fallback, background GPS tracking, dialer and WhatsApp intent routing.
+            <h4 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Android Release APK</h4>
+            <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.45; margin-bottom: 0.85rem;">
+              Signed release APK with hardware acceleration, native GPS runtime permissions, background offline engine, and direct WhatsApp / dialer routing.
             </p>
-            <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 0.85rem;">
-              • Size: <b>1.44 MB</b><br>
-              • Target: Android 7.0 - 14<br>
-              • Package: <code>ai.saferoute.app</code>
+            <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 0.85rem; line-height: 1.4;">
+              • Size: <b>1.44 MB</b> (1,513,780 bytes)<br>
+              • Android: <b>7.0 Nougat to 14/15</b> (API 24–34)<br>
+              • Signatures: <b>v2 + v3 Verified</b>
             </div>
           </div>
           <a href="SafeRoute-AI.apk" download="SafeRoute-AI.apk" class="btn-primary" style="text-decoration: none; justify-content: center; font-size: 0.85rem; padding: 0.6rem;">
-            ⬇️ Download Android APK
+            ⬇️ Download SafeRoute-AI.apk
           </a>
         </div>
 
-        <!-- Option 2: Install PWA -->
+        <!-- 2. Universal Web App (Windows, macOS, Android, iOS) -->
         <div class="card" style="padding: 1.25rem; border-color: rgba(56, 189, 248, 0.4); background: rgba(6, 20, 34, 0.85); display: flex; flex-direction: column; justify-content: space-between;">
           <div>
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
               <span style="font-size: 1.8rem;">⚡</span>
-              <span class="backend-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8;">Web App (PWA)</span>
+              <span class="backend-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8;">PWA (Windows / Mac / Phone)</span>
             </div>
-            <h4 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Install to Device</h4>
-            <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.45; margin-bottom: 1rem;">
-              Install directly on your phone or computer. Launches full-screen from your Home Screen with instant loading and offline caching.
+            <h4 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Install to Device Screen</h4>
+            <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.45; margin-bottom: 0.85rem;">
+              Pin to your Windows Start / Taskbar, macOS Dock, or phone home screen. Runs in a dedicated app window with instant loading.
             </p>
-            <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 0.85rem;">
-              • Chrome, Edge, Safari, Opera<br>
-              • Zero storage footprint<br>
-              • Auto-updates with latest models
+            <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 0.85rem; line-height: 1.4;">
+              • Works on: <b>Chrome, Edge, Safari, Opera</b><br>
+              • Auto-syncs latest safety heuristics<br>
+              • Full-screen experience without browser tabs
             </div>
           </div>
           <button onclick="installPWA()" id="pwaInstallBtn" class="btn-outline" style="justify-content: center; font-size: 0.85rem; padding: 0.6rem; border-color: #38bdf8; color: #38bdf8;">
-            📲 Install App to Screen
+            📲 1-Click Install App
           </button>
         </div>
       </div>
 
+      <!-- iOS (iPhone/iPad) Step-by-Step Installation Guide -->
+      <div id="iosInstallGuide" class="os-guide-box" style="display: block; margin-top: 1rem; border-color: rgba(236, 72, 153, 0.35);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+          <b style="font-size: 0.88rem; color: #f472b6; display: flex; align-items: center; gap: 6px;">
+            🍎 Apple iOS Installation (iPhone & iPad Safari):
+          </b>
+          <span style="font-size: 0.7rem; color: #94a3b8;">No App Store download required</span>
+        </div>
+        <ul class="os-steps">
+          <li><span>1️⃣</span> Open this site in <b>Safari</b> on your iPhone or iPad.</li>
+          <li><span>2️⃣</span> Tap the <b>Share icon</b> <b style="color: #38bdf8;">[↑]</b> in Safari bottom toolbar.</li>
+          <li><span>3️⃣</span> Scroll down and tap <b style="color: #34d399;">"Add to Home Screen"</b> ➕, then tap <b>"Add"</b>.</li>
+        </ul>
+      </div>
+
       <div style="margin-top: 1.25rem; padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
         <span style="font-size: 0.75rem; color: #64748b;">
-          💡 iPhone users: Tap <b>Share</b> in Safari, then <b>"Add to Home Screen"</b>.
+          💻 Windows & Mac: Click <b>Install</b> in browser address bar (Edge / Chrome) or <b>File &gt; Add to Dock</b> (Safari).
         </span>
-        <button onclick="closeAppModal()" class="btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.9rem;">
+        <button onclick="closeAppModal()" class="btn-primary" style="font-size: 0.8rem; padding: 0.4rem 1rem;">
           Close
         </button>
       </div>
     </div>
   </div>
+
+  <!-- MOBILE BOTTOM NAVIGATION (iOS & Android) -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+    <button data-nav="home" onclick="show('home')" class="mobile-nav-btn nav-active">
+      <span class="mob-icon">🏠</span>
+      <span>Home</span>
+    </button>
+    <button data-nav="planner" onclick="show('planner')" class="mobile-nav-btn">
+      <span class="mob-icon">🗺️</span>
+      <span>Planner</span>
+    </button>
+    <button data-nav="live" onclick="show('live')" class="mobile-nav-btn">
+      <span class="mob-icon">🛡️</span>
+      <span>Live Guard</span>
+    </button>
+    <button data-nav="contacts" onclick="show('contacts')" class="mobile-nav-btn">
+      <span class="mob-icon">👥</span>
+      <span>Contacts</span>
+    </button>
+    <button data-nav="reports" onclick="show('reports')" class="mobile-nav-btn">
+      <span class="mob-icon">⚠️</span>
+      <span>Incidents</span>
+    </button>
+  </nav>
 
   <!-- Application Scripts in Dependency Order -->
   <script src="js/lib/mapbox-gl.js"></script>

@@ -31,6 +31,12 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: -webkit-fill-available;
 }
 
 body {
@@ -40,9 +46,31 @@ body {
               url('../assets/images/night-bg.jpg') no-repeat center center fixed;
   background-size: cover;
   min-height: 100vh;
+  min-height: 100dvh;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Custom Cyber Scrollbar for Windows, macOS & Linux Desktop */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #030812;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.28);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.55);
 }
 
 /* Glassmorphism primitives */
@@ -679,4 +707,103 @@ main {
 .toast-box.error {
   border-color: var(--border-red);
   color: #fca5a5;
+}
+
+/* Mobile Bottom Navigation Bar (iOS & Android) */
+.mobile-bottom-nav {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2500;
+  background: rgba(3, 8, 18, 0.94);
+  border-top: 1px solid var(--border-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 0.45rem 0.5rem calc(0.45rem + env(safe-area-inset-bottom));
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.mobile-nav-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  touch-action: manipulation;
+}
+
+.mobile-nav-btn .mob-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: transform var(--transition-fast);
+}
+
+.mobile-nav-btn:active .mob-icon {
+  transform: scale(0.9);
+}
+
+.mobile-nav-btn.nav-active {
+  color: var(--color-emerald-light);
+}
+
+.mobile-nav-btn.nav-active .mob-icon {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.6));
+}
+
+@media (min-width: 900px) {
+  .mobile-bottom-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 899px) {
+  main {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+  
+  #toast {
+    bottom: calc(5rem + env(safe-area-inset-bottom));
+    right: 1rem;
+    left: 1rem;
+    text-align: center;
+  }
+}
+
+/* Cross-Platform Device Guide Cards */
+.os-guide-box {
+  background: rgba(6, 18, 30, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-top: 0.75rem;
+}
+
+.os-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+}
+
+.os-steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }

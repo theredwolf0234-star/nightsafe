@@ -1,13 +1,16 @@
 {
+  "id": "womens-safety-app",
   "name": "Women's Safety — Night Travel Guardian",
   "short_name": "Women's Safety",
   "description": "AI-powered night travel route optimization, lighting heatmaps, safe haven proximity, and emergency tools.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#030812",
   "theme_color": "#030812",
-  "orientation": "portrait",
+  "orientation": "any",
+  "categories": ["navigation", "safety", "travel", "utilities"],
   "icons": [
     {
       "src": "assets/images/icon-192.png",
