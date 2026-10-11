@@ -195,8 +195,20 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) {
-            webView.goBack();
+        if (webView != null) {
+            webView.evaluateJavascript("Boolean(window.handleAppBack && window.handleAppBack())", value -> {
+                runOnUiThread(() -> {
+                    if ("true".equalsIgnoreCase(value)) {
+                        // Handled by web app (closed modal or navigated to previous screen)
+                        return;
+                    }
+                    if (webView.canGoBack()) {
+                        webView.goBack();
+                    } else {
+                        MainActivity.super.onBackPressed();
+                    }
+                });
+            });
         } else {
             super.onBackPressed();
         }

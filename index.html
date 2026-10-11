@@ -180,6 +180,10 @@
 
     <!-- SECTION 2: JOURNEY PLANNER & RISK ENGINE -->
     <section id="planner" class="page hidden">
+      <button type="button" onclick="goBack()" class="back-btn" id="plannerBackBtn" title="Back to Previous Screen">
+        <span class="back-arrow">‹</span> Back to Home
+      </button>
+
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
           <h2 style="font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em;">
@@ -188,6 +192,7 @@
           <p style="font-size: 0.9rem; color: #94a3b8;">
             Evaluates roadway illumination, time-of-night curfew risk, and emergency safe havens.
           </p>
+        </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
           <div class="map-layer-selector">
             <button type="button" onclick="setBasemapLayer('dark')" class="map-layer-btn btn-layer-dark active" title="Night Dark Theme">🌙 Night Dark</button>
@@ -283,6 +288,10 @@
 
     <!-- SECTION 3: LIVE JOURNEY GUARD -->
     <section id="live" class="page hidden">
+      <button type="button" onclick="goBack()" class="back-btn" id="liveBackBtn" title="Back to Previous Screen">
+        <span class="back-arrow">‹</span> Back
+      </button>
+
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
           <h2 style="font-size: 1.85rem; font-weight: 800;">Live Journey Guard</h2>
@@ -350,6 +359,10 @@
 
     <!-- SECTION 4: TRUSTED CONTACTS -->
     <section id="contacts" class="page hidden">
+      <button type="button" onclick="goBack()" class="back-btn" id="contactsBackBtn" title="Back to Previous Screen">
+        <span class="back-arrow">‹</span> Back to Home
+      </button>
+
       <div>
         <h2 style="font-size: 1.85rem; font-weight: 800;">Trusted Emergency Contacts</h2>
         <p style="font-size: 0.9rem; color: #94a3b8;">
@@ -396,6 +409,10 @@
 
     <!-- SECTION 5: SOS & INCIDENT REPORTS -->
     <section id="reports" class="page hidden">
+      <button type="button" onclick="goBack()" class="back-btn" id="reportsBackBtn" title="Back to Previous Screen">
+        <span class="back-arrow">‹</span> Back to Home
+      </button>
+
       <div>
         <h2 style="font-size: 1.85rem; font-weight: 800;">SOS &amp; Incident Security Log</h2>
         <p style="font-size: 0.9rem; color: #94a3b8;">

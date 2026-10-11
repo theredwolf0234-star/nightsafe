@@ -30,7 +30,43 @@ function showToast(message, type = 'info') {
   toast._timeout = setTimeout(() => toast.classList.add('hidden'), 3500);
 }
 
-function show(pageId) {
+window.navHistory = ['home'];
+window.currentPage = 'home';
+
+function closeAnyOpenModal() {
+  let closed = false;
+  const modals = ['sosModal', 'appModal'];
+  modals.forEach(id => {
+    const el = $(id);
+    if (el && !el.classList.contains('hidden')) {
+      el.classList.add('hidden');
+      closed = true;
+      if (id === 'sosModal' && typeof cancelSOS === 'function') {
+        cancelSOS();
+      }
+    }
+  });
+  return closed;
+}
+
+function show(pageId, pushToHistory = true) {
+  if (!pageId) pageId = 'home';
+
+  // Always close any modal when switching screens
+  closeAnyOpenModal();
+
+  if (pageId !== window.currentPage && pushToHistory) {
+    if (!window.navHistory) window.navHistory = ['home'];
+    // Avoid immediate duplicate stack entries
+    if (window.navHistory[window.navHistory.length - 1] !== pageId) {
+      window.navHistory.push(pageId);
+    }
+    try {
+      history.pushState({ page: pageId }, '', '#' + pageId);
+    } catch (e) {}
+  }
+  window.currentPage = pageId;
+
   document.querySelectorAll('.page').forEach(el => el.classList.add('hidden'));
   const target = $(pageId);
   if (target) target.classList.remove('hidden');
@@ -42,17 +78,77 @@ function show(pageId) {
   activeBtns.forEach(b => b.classList.add('nav-active'));
 
   if (pageId === 'planner') {
-    setTimeout(initMap, 150);
+    setTimeout(() => { if (typeof initMap === 'function') initMap(); }, 150);
   } else if (pageId === 'live') {
-    setTimeout(initLiveMap, 150);
+    setTimeout(() => { if (typeof initLiveMap === 'function') initLiveMap(); }, 150);
   } else if (pageId === 'contacts') {
-    loadContacts();
+    if (typeof loadContacts === 'function') loadContacts();
   } else if (pageId === 'reports') {
-    loadReports();
+    if (typeof loadReports === 'function') loadReports();
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function goBack() {
+  // 1. If any modal is open (SOS or App modal), close it first and stay on current page
+  if (closeAnyOpenModal()) {
+    return true;
+  }
+
+  // 2. If we have a navigation history stack with previous pages
+  if (window.navHistory && window.navHistory.length > 1) {
+    window.navHistory.pop(); // Remove current page
+    let prevPage = window.navHistory[window.navHistory.length - 1] || 'home';
+    if (prevPage === window.currentPage && window.navHistory.length > 1) {
+      window.navHistory.pop();
+      prevPage = window.navHistory[window.navHistory.length - 1] || 'home';
+    }
+    show(prevPage, false);
+    try {
+      history.replaceState({ page: prevPage }, '', '#' + prevPage);
+    } catch (e) {}
+    return true;
+  }
+
+  // 3. Fallback: If not on home, go back to home
+  if (window.currentPage && window.currentPage !== 'home') {
+    window.navHistory = ['home'];
+    show('home', false);
+    try {
+      history.replaceState({ page: 'home' }, '', '#home');
+    } catch (e) {}
+    return true;
+  }
+
+  // Already on home with no modals open: let system exit/minimize
+  return false;
+}
+
+// Global handler invoked by Android WebView hardware/gesture Back key
+window.handleAppBack = function() {
+  return goBack();
+};
+
+// Handle Browser Back Button / Mobile Safari swipe back
+window.addEventListener('popstate', event => {
+  if (closeAnyOpenModal()) {
+    return;
+  }
+  const targetPage = (event.state && event.state.page) || (window.location.hash ? window.location.hash.replace('#', '') : 'home');
+  if (window.navHistory && window.navHistory.length > 1) {
+    window.navHistory.pop();
+  }
+  show(targetPage, false);
+});
+
+// Initial URL hash navigation on load
+window.addEventListener('DOMContentLoaded', () => {
+  const hash = window.location.hash ? window.location.hash.replace('#', '') : '';
+  if (hash && ['planner', 'live', 'contacts', 'reports'].includes(hash)) {
+    show(hash, false);
+  }
+});
 
 function detectLocation() {
   if (!navigator.geolocation) {

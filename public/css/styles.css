@@ -581,6 +581,37 @@ main {
   box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
 }
 
+/* On-Screen Ergonomic Back Navigation Button */
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: 0.85rem;
+  text-decoration: none;
+}
+
+.back-btn:hover, .back-btn:active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: var(--border-emerald);
+  color: var(--color-emerald-light);
+  transform: translateX(-3px);
+}
+
+.back-arrow {
+  font-size: 1.25rem;
+  line-height: 1;
+  font-weight: 800;
+}
+
 /* Route List & Form Controls */
 .form-input, .form-select {
   width: 100%;
