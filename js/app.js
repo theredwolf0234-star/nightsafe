@@ -86,10 +86,18 @@ function detectLocation() {
 
       // Reverse geocode to human-readable address
       try {
-        const r = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}&limit=1`);
-        const d = await r.json();
-        if (d.features && d.features.length && originInput) {
-          originInput.value = d.features[0].place_name;
+        if (typeof hasValidMapboxToken === 'function' && hasValidMapboxToken()) {
+          const r = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}&limit=1`);
+          const d = await r.json();
+          if (d.features && d.features.length && originInput) {
+            originInput.value = d.features[0].place_name;
+          }
+        } else {
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const d = await r.json();
+          if (d && d.display_name && originInput) {
+            originInput.value = d.display_name;
+          }
         }
       } catch {}
 
@@ -133,17 +141,35 @@ async function planRoute() {
     const mode = $('mode') ? $('mode').value : 'driving';
     const departureTime = $('departure') ? $('departure').value : '23:00';
 
-    // Fetch primary and alternative routes from Mapbox Directions API
-    const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${startCoords[1]},${startCoords[0]};${endCoords[1]},${endCoords[0]}?alternatives=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
-
-    const resp = await fetch(directionsUrl);
-    const data = await resp.json();
-
-    if (!data.routes || !data.routes.length) {
-      throw new Error('No navigable route found between these locations');
+    // Fetch primary and alternative routes (Mapbox if valid token, otherwise free OSRM router)
+    let rawRoutes = [];
+    if (typeof hasValidMapboxToken === 'function' && hasValidMapboxToken()) {
+      try {
+        const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${startCoords[1]},${startCoords[0]};${endCoords[1]},${endCoords[0]}?alternatives=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
+        const resp = await fetch(directionsUrl);
+        const data = await resp.json();
+        if (data.routes && data.routes.length) {
+          rawRoutes = data.routes;
+        }
+      } catch {}
     }
 
-    const rawRoutes = data.routes;
+    // Free Open-Source Routing Machine (OSRM) fallback (no API key required)
+    if (!rawRoutes.length) {
+      try {
+        const osrmMode = mode === 'walking' ? 'foot' : (mode === 'cycling' ? 'bicycle' : 'driving');
+        const osrmUrl = `https://router.project-osrm.org/route/v1/${osrmMode}/${startCoords[1]},${startCoords[0]};${endCoords[1]},${endCoords[0]}?alternatives=true&geometries=geojson&overview=full`;
+        const resp = await fetch(osrmUrl);
+        const data = await resp.json();
+        if (data.routes && data.routes.length) {
+          rawRoutes = data.routes;
+        }
+      } catch {}
+    }
+
+    if (!rawRoutes.length) {
+      throw new Error('No navigable route found between these locations');
+    }
 
     // Send routes to our AI Risk Engine!
     const aiEvaluation = await window.riskClient.evaluateRoutes(rawRoutes, departureTime, mode);

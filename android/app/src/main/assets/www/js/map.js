@@ -3,26 +3,38 @@
  * Mapbox GL JS integrations, multi-route styling, safe haven markers, and safety heatmaps.
  */
 
-// CARTO Dark Matter raster style fallback (Zero configuration, high-performance, dark night aesthetic)
-const CARTO_DARK_STYLE = {
+// High-performance true dark map style (Zero configuration, 100% free, NO API KEY required, NO watermarks)
+const ESRI_DARK_STYLE = {
   version: 8,
   sources: {
-    'carto-dark': {
+    'esri-dark-base': {
       type: 'raster',
       tiles: [
-        'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
-        'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+        'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
       ],
       tileSize: 256,
-      attribution: '&copy; CARTO &copy; OpenStreetMap contributors'
+      attribution: '&copy; Esri &mdash; SafeRoute.AI Navigation'
+    },
+    'esri-dark-reference': {
+      type: 'raster',
+      tiles: [
+        'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+      ],
+      tileSize: 256
     }
   },
   layers: [
     {
-      id: 'carto-dark-layer',
+      id: 'esri-dark-base-layer',
       type: 'raster',
-      source: 'carto-dark',
+      source: 'esri-dark-base',
+      minzoom: 0,
+      maxzoom: 19
+    },
+    {
+      id: 'esri-dark-reference-layer',
+      type: 'raster',
+      source: 'esri-dark-reference',
       minzoom: 0,
       maxzoom: 19
     }
@@ -42,7 +54,7 @@ function getMapStyle() {
   if (hasValidMapboxToken()) {
     return 'mapbox://styles/mapbox/dark-v11';
   }
-  return CARTO_DARK_STYLE;
+  return ESRI_DARK_STYLE;
 }
 
 if (hasValidMapboxToken()) {
@@ -234,12 +246,27 @@ function clearRoutes() {
 }
 
 async function geocode(query) {
-  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&limit=1`;
-  const resp = await fetch(url);
-  const data = await resp.json();
-  if (!data.features || !data.features.length) {
-    throw new Error(`Location not found: "${query}"`);
+  if (hasValidMapboxToken()) {
+    try {
+      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&limit=1`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if (data.features && data.features.length) {
+        const [lng, lat] = data.features[0].center;
+        return [lat, lng];
+      }
+    } catch {}
   }
-  const [lng, lat] = data.features[0].center;
-  return [lat, lng];
+
+  // Free OpenStreetMap Nominatim geocoding fallback (no API key required)
+  try {
+    const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+    const resp = await fetch(nomUrl, { headers: { 'Accept-Language': 'en' } });
+    const data = await resp.json();
+    if (data && data.length) {
+      return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+    }
+  } catch {}
+
+  throw new Error(`Location not found: "${query}"`);
 }

@@ -57,9 +57,6 @@
       </nav>
 
       <div class="header-actions">
-        <button onclick="openAppModal()" class="btn-app-install" id="headerAppBtn">
-          📱 Get App
-        </button>
         <button onclick="openSOS()" class="btn-sos pulse" id="headerSosBtn">
           🚨 SOS
         </button>
@@ -378,7 +375,6 @@
         <div class="glass" style="padding: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3 style="font-size: 1.1rem; font-weight: 800;">Your Guardians</h3>
-            <span class="backend-badge" style="font-size: 10px; padding: 2px 8px; cursor: pointer;" onclick="openDbStatusModal()" title="Stored in SQLite contacts table">🗄️ SQLite contacts</span>
           </div>
           <div id="contactsList">
             <p class="text-slate-500 text-sm">Loading contacts...</p>
@@ -421,7 +417,7 @@
             <textarea id="repNotes" rows="3" required class="form-input" placeholder="Describe the safety hazard or condition observed…"></textarea>
           </div>
           <button type="submit" class="btn-primary" style="background: #dc2626; color: #ffffff; justify-content: center; width: 100%;">
-            💾 Save to SQLite Database
+            ⚠️ Submit Incident Report
           </button>
         </form>
 
@@ -429,14 +425,10 @@
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 8px;">
               <h3 style="font-size: 1.1rem; font-weight: 800;">Recorded Incidents</h3>
-              <span class="backend-badge" style="font-size: 10px; padding: 2px 8px; cursor: pointer;" onclick="openDbStatusModal()" title="Stored in SQLite incidents table">🗄️ SQLite Synced</span>
             </div>
             <div style="display: flex; gap: 8px;">
-              <button onclick="openDbStatusModal()" class="btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
-                🗄️ DB Stats
-              </button>
               <button onclick="exportReports()" class="btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
-                📥 Export JSON
+                📥 Export Log
               </button>
             </div>
           </div>
@@ -470,36 +462,6 @@
       </div>
 
       <div id="sosResult"></div>
-    </div>
-  </div>
-
-  <!-- SQLITE DATABASE INSPECTION MODAL -->
-  <div id="dbModal" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width: 580px; text-align: left; border-color: rgba(56, 189, 248, 0.35);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <span style="font-size: 1.6rem;">🗄️</span>
-          <div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff;">SQLite Relational Database</h3>
-            <div style="font-size: 0.75rem; color: #38bdf8;">ACID Compliant • WAL Concurrency • Built-in Zero Dependencies</div>
-          </div>
-        </div>
-        <button onclick="closeDbStatusModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.25rem; cursor: pointer;">✕</button>
-      </div>
-
-      <div id="dbModalBody">
-        <p style="color: #94a3b8; font-size: 0.85rem;">Loading database metrics...</p>
-      </div>
-
-      <div style="display: flex; gap: 10px; margin-top: 1.25rem; justify-content: flex-end;">
-        <button onclick="refreshDbModal()" class="btn-outline" style="font-size: 0.85rem; padding: 0.45rem 0.9rem;">
-          🔄 Refresh Metrics
-        </button>
-        <button onclick="closeDbStatusModal()" class="btn-primary" style="font-size: 0.85rem; padding: 0.45rem 1rem;">
-          Close
-        </button>
-      </div>
-    </div>
   </div>
 
   <!-- GET MOBILE & DESKTOP APP MODAL (Android, iOS, Windows, Mac) -->
