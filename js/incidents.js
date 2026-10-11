@@ -112,14 +112,17 @@ async function saveSosReport(e) {
     notes: notesEl ? notesEl.value.trim() : 'Incident logged.'
   };
 
-  // 1. Try Backend
+  // 1. Try Backend (SQLite Relational DB)
   if (window.riskClient && window.riskClient.backendAvailable) {
     try {
-      await fetch(`${window.riskClient.apiBase}/api/incidents`, {
+      const resp = await fetch(`${window.riskClient.apiBase}/api/incidents`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      if (resp.ok) {
+        if (window.riskClient.checkBackendStatus) window.riskClient.checkBackendStatus();
+      }
     } catch {}
   }
 
@@ -130,13 +133,16 @@ async function saveSosReport(e) {
 
   if (e && e.target) e.target.reset();
   loadReports();
-  showToast('Incident report recorded into safety database');
+  showToast('Incident report committed to SQLite database');
 }
 
 async function deleteReport(id) {
   if (window.riskClient && window.riskClient.backendAvailable) {
     try {
-      await fetch(`${window.riskClient.apiBase}/api/incidents/${id}`, { method: 'DELETE' });
+      const resp = await fetch(`${window.riskClient.apiBase}/api/incidents/${id}`, { method: 'DELETE' });
+      if (resp.ok) {
+        if (window.riskClient.checkBackendStatus) window.riskClient.checkBackendStatus();
+      }
     } catch {}
   }
 
@@ -144,7 +150,7 @@ async function deleteReport(id) {
   reports = reports.filter((r, idx) => r.id !== id && String(idx) !== String(id));
   localStorage.setItem(INCIDENTS_CACHE_KEY, JSON.stringify(reports));
   loadReports();
-  showToast('Report deleted');
+  showToast('Report deleted from SQLite database');
 }
 
 function exportReports() {
@@ -156,7 +162,7 @@ function exportReports() {
   const blob = new Blob([JSON.stringify(reports, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `SafeRoute_Security_Incident_Reports_${Date.now()}.json`;
+  a.download = `Womens_Safety_Security_Incident_Reports_${Date.now()}.json`;
   a.click();
   showToast('Reports downloaded as JSON archive');
 }

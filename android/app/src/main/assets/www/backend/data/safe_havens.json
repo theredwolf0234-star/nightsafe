@@ -1,0 +1,102 @@
+[
+  {
+    "id": "SH-101",
+    "name": "Connaught Place Police Station & 24/7 Booth",
+    "type": "police",
+    "lat": 28.6315,
+    "lng": 77.2167,
+    "address": "Inner Circle, Connaught Place, New Delhi",
+    "phone": "011-23747100",
+    "features": ["24/7 Patrol", "CCTV Monitored", "Women Help Desk", "First Aid"]
+  },
+  {
+    "id": "SH-102",
+    "name": "Dr. Ram Manohar Lohia Hospital (24/7 Emergency)",
+    "type": "hospital",
+    "lat": 28.6247,
+    "lng": 77.2023,
+    "address": "Baba Kharak Singh Marg, New Delhi",
+    "phone": "011-23365525",
+    "features": ["Emergency Ward", "24/7 Security", "Ambulance Hub", "Lit Parking"]
+  },
+  {
+    "id": "SH-103",
+    "name": "AIIMS Emergency & Trauma Centre",
+    "type": "hospital",
+    "lat": 28.5672,
+    "lng": 77.2100,
+    "address": "Sri Aurobindo Marg, Ansari Nagar, New Delhi",
+    "phone": "011-26588500",
+    "features": ["24/7 Emergency", "Paramedic Dispatch", "Police Post On-site"]
+  },
+  {
+    "id": "SH-104",
+    "name": "Hauz Khas Police Station",
+    "type": "police",
+    "lat": 28.5494,
+    "lng": 77.2001,
+    "address": "Near Hauz Khas Metro Station, New Delhi",
+    "phone": "011-26861214",
+    "features": ["Highway Patrol Unit", "Emergency Response Vehicle", "Lit Safe Zone"]
+  },
+  {
+    "id": "SH-105",
+    "name": "Apollo Pharmacy 24/7 - South Extension",
+    "type": "pharmacy_247",
+    "lat": 28.5726,
+    "lng": 77.2215,
+    "address": "South Extension Part II, Ring Road, New Delhi",
+    "phone": "011-41648000",
+    "features": ["24/7 Open Retail", "Well-lit Storefront", "Active Footfall"]
+  },
+  {
+    "id": "SH-106",
+    "name": "Rajiv Chowk Metro Security & Helpdesk",
+    "type": "transit_hub",
+    "lat": 28.6328,
+    "lng": 77.2195,
+    "address": "Rajiv Chowk Station Concourse, CP",
+    "phone": "155370",
+    "features": ["CISF Armed Guarding", "360 CCTV Coverage", "Emergency SOS Button"]
+  },
+  {
+    "id": "SH-107",
+    "name": "Noida Sector 18 Police Post & Commercial Corridor",
+    "type": "police",
+    "lat": 28.5708,
+    "lng": 77.3208,
+    "address": "Atta Market, Sector 18, Noida",
+    "phone": "0120-2512100",
+    "features": ["Pink Police Booth", "High Street Lumens", "24/7 Security Patrol"]
+  },
+  {
+    "id": "SH-108",
+    "name": "Max Super Speciality Hospital Saket",
+    "type": "hospital",
+    "lat": 28.5283,
+    "lng": 77.2135,
+    "address": "1, 2, Press Enclave Marg, Saket, New Delhi",
+    "phone": "011-26515050",
+    "features": ["24/7 Emergency", "Security Guarded Gate", "Well-lit Drop Zone"]
+  },
+  {
+    "id": "SH-109",
+    "name": "Cyber Hub 24/7 Security Control & Police Post",
+    "type": "police",
+    "lat": 28.4952,
+    "lng": 77.0890,
+    "address": "DLF Cyber City, Gurugram",
+    "phone": "0124-2388000",
+    "features": ["24/7 Rapid Response", "Private & State Police", "CCTV Grid"]
+  },
+  {
+    "id": "SH-110",
+    "name": "24Seven Convenience Store - Defence Colony",
+    "type": "pharmacy_247",
+    "lat": 28.5744,
+    "lng": 77.2340,
+    "address": "Defence Colony Main Market, New Delhi",
+    "phone": "011-41551000",
+    "features": ["24-Hour Open Store", "High Visibility Lights", "Active Customers"]
+  }
+]

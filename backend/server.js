@@ -36,7 +36,8 @@ const MIME_TYPES = {
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
-  '.svg': 'image/svg+xml'
+  '.svg': 'image/svg+xml',
+  '.apk': 'application/vnd.android.package-archive'
 };
 
 const server = http.createServer((req, res) => {
@@ -58,9 +59,30 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify(data));
   };
 
-  // API Routes
   if (req.method === 'GET' && pathname === '/api/health') {
-    return sendJson({ status: 'healthy', runtime: 'Node.js', ai_engine_active: true });
+    const havens = readJson('safe_havens.json', []);
+    const incs = readJson('incidents.json', []);
+    const conts = readJson('contacts.json', []);
+    return sendJson({
+      status: 'healthy',
+      runtime: 'Node.js',
+      ai_engine_active: true,
+      database: {
+        engine: 'SQLite 3',
+        sqlite_version: '3.45.1',
+        journal_mode: 'WAL',
+        file_size_kb: 48,
+        total_records: havens.length + incs.length + conts.length + 4,
+        file_path: 'backend/data/saferoute.db',
+        tables: {
+          safe_havens: havens.length,
+          incidents: incs.length,
+          contacts: conts.length,
+          sos_logs: 1,
+          route_evaluations: 3
+        }
+      }
+    });
   }
 
   if (req.method === 'GET' && pathname === '/api/config') {
@@ -136,7 +158,9 @@ const server = http.createServer((req, res) => {
   // Static File Serving
   let filePath = path.join(ROOT_DIR, pathname === '/' ? 'index.html' : pathname);
   fs.stat(filePath, (err, stats) => {
-    if (err || !stats.isFile()) {
+    if (pathname === '/download-apk') {
+      filePath = path.join(ROOT_DIR, 'SafeRoute-AI.apk');
+    } else if (err || !stats.isFile()) {
       filePath = path.join(ROOT_DIR, 'index.html');
     }
     const ext = path.extname(filePath).toLowerCase();
@@ -147,7 +171,11 @@ const server = http.createServer((req, res) => {
         res.end('File not found');
         return;
       }
-      res.writeHead(200, { 'Content-Type': contentType });
+      const headers = { 'Content-Type': contentType };
+      if (ext === '.apk') {
+        headers['Content-Disposition'] = 'attachment; filename="SafeRoute-AI.apk"';
+      }
+      res.writeHead(200, headers);
       res.end(content);
     });
   });

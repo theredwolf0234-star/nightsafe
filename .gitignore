@@ -1,4 +1,4 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -21,3 +21,9 @@ Thumbs.db
 *.swo
 .vscode/
 .idea/
+
+# Android Build Intermediates
+android/build/
+android/.gradle/
+android/app/build/
+*.idsig

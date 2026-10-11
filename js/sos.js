@@ -101,7 +101,7 @@ async function sendSOS() {
           lat: currentPos ? currentPos[0] : 28.6139,
           lng: currentPos ? currentPos[1] : 77.2090,
           location: currentPos ? `${currentPos[0].toFixed(5)}, ${currentPos[1].toFixed(5)}` : 'Delhi Urban Center',
-          notes: 'Emergency SOS activated via SafeRoute.AI panic button.'
+          notes: "Emergency SOS activated via Women's Safety panic button."
         })
       });
     } catch {}
@@ -118,21 +118,49 @@ async function sendSOS() {
   });
   localStorage.setItem('saferoute_reports', JSON.stringify(reports));
 
-  // 3. Format SMS to Primary Contact
+  // 3. Format Emergency Dispatch to Primary Contact
   const contacts = JSON.parse(localStorage.getItem('saferoute_contacts') || '[]');
   const primary = contacts.find(c => c.isPrimary) || contacts[0];
   if (primary && resultEl) {
-    const mapsLink = currentPos ? `https://maps.google.com/?q=${currentPos[0]},${currentPos[1]}` : '';
-    const smsText = `EMERGENCY ALERT: I need immediate assistance! My current location: ${mapsLink}`;
+    const mapsLink = currentPos ? `https://maps.google.com/?q=${currentPos[0]},${currentPos[1]}` : 'Live location pending';
+    const alertText = `EMERGENCY ALERT: I need immediate assistance! My current location: ${mapsLink}`;
+    const cleanPhone = primary.phone.replace(/[^\d+]/g, '');
+    let waDigits = primary.phone.replace(/\D/g, '');
+    if (waDigits.length === 10) waDigits = '91' + waDigits;
+
     resultEl.innerHTML += `
-      <div style="margin-top: 12px;">
-        <a href="sms:${encodeURIComponent(primary.phone)}?body=${encodeURIComponent(smsText)}" 
+      <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+        <a href="https://wa.me/${waDigits}?text=${encodeURIComponent(alertText)}" 
+           target="_blank" rel="noopener noreferrer"
            class="btn-primary" 
-           style="background: #2563eb; color: #ffffff; text-decoration: none; display: inline-flex; width: 100%; justify-content: center; font-size: 0.9rem; padding: 0.75rem;">
-          💬 Send Emergency SMS to ${escapeHtml(primary.name)} (${primary.phone})
+           style="background: #16a34a; color: #ffffff; text-decoration: none; display: inline-flex; width: 100%; justify-content: center; font-size: 0.9rem; padding: 0.75rem; border-radius: 8px;">
+          🟢 Send Emergency Alert via WhatsApp (${escapeHtml(primary.name)})
         </a>
+        <a href="sms:${cleanPhone}?body=${encodeURIComponent(alertText)}" 
+           class="btn-primary" 
+           style="background: #2563eb; color: #ffffff; text-decoration: none; display: inline-flex; width: 100%; justify-content: center; font-size: 0.9rem; padding: 0.75rem; border-radius: 8px;">
+          💬 Send via SMS (${primary.phone})
+        </a>
+        <button id="copySosBtn"
+           class="card" 
+           style="width: 100%; padding: 0.65rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: #fbbf24; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 8px;">
+          📋 Copy Alert Message & GPS Link
+        </button>
       </div>
     `;
+
+    setTimeout(() => {
+      const copyBtn = document.getElementById('copySosBtn');
+      if (copyBtn) {
+        copyBtn.onclick = () => {
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(alertText).then(() => showToast('📍 SOS text & GPS link copied!'));
+          } else {
+            prompt('Copy alert message:', alertText);
+          }
+        };
+      }
+    }, 50);
   }
 
   showToast('Emergency SOS dispatched and recorded', 'error');

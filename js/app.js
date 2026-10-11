@@ -84,25 +84,10 @@ function detectLocation() {
 
       // Reverse geocode to human-readable address
       try {
-        if (typeof hasValidMapboxToken === 'function' && hasValidMapboxToken()) {
-          const r = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${getMapboxToken()}&limit=1`);
-          if (r.ok) {
-            const d = await r.json();
-            if (d.features && d.features.length && originInput) {
-              originInput.value = d.features[0].place_name;
-              showToast('GPS location acquired');
-              return;
-            }
-          }
-        }
-        const osmResp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
-        if (osmResp.ok) {
-          const osmData = await osmResp.json();
-          if (osmData && osmData.display_name && originInput) {
-            originInput.value = osmData.display_name;
-            showToast('GPS location acquired');
-            return;
-          }
+        const r = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}&limit=1`);
+        const d = await r.json();
+        if (d.features && d.features.length && originInput) {
+          originInput.value = d.features[0].place_name;
         }
       } catch {}
 
@@ -132,7 +117,7 @@ async function planRoute() {
 
     if (!startCoords) {
       if (!originVal) {
-        throw new Error('Please enter a starting location or click Detect Location');
+        throw new Error('Please enter a starting location or click 📍 Detect Location');
       }
       startCoords = /^-?\d+\.\d+,\s*-?\d+\.\d+$/.test(originVal)
         ? originVal.split(',').map(Number)
@@ -146,38 +131,13 @@ async function planRoute() {
     const mode = $('mode') ? $('mode').value : 'driving';
     const departureTime = $('departure') ? $('departure').value : '23:00';
 
-    let rawRoutes = [];
+    // Fetch primary and alternative routes from Mapbox Directions API
+    const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${startCoords[1]},${startCoords[0]};${endCoords[1]},${endCoords[0]}?alternatives=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
 
-    // Fetch primary and alternative routes from Mapbox Directions API if token available
-    if (typeof hasValidMapboxToken === 'function' && hasValidMapboxToken()) {
-      try {
-        const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/${mode}/${startCoords[1]},${startCoords[0]};${endCoords[1]},${endCoords[0]}?alternatives=true&geometries=geojson&access_token=${getMapboxToken()}`;
-        const resp = await fetch(directionsUrl);
-        if (resp.ok) {
-          const data = await resp.json();
-          if (data.routes && data.routes.length) {
-            rawRoutes = data.routes;
-          }
-        }
-      } catch (e) {
-        console.warn('Mapbox directions error:', e);
-      }
-    }
+    const resp = await fetch(directionsUrl);
+    const data = await resp.json();
 
-    // OSRM Public Routing Fallback
-    if (!rawRoutes.length) {
-      const osrmMode = mode === 'walking' ? 'foot' : (mode === 'cycling' ? 'bicycle' : 'car');
-      const osrmUrl = `https://router.project-osrm.org/route/v1/${osrmMode}/${startCoords[1]},${startCoords[0]};${endCoords[1]},${endCoords[0]}?overview=full&geometries=geojson&alternatives=true`;
-      const osrmResp = await fetch(osrmUrl);
-      if (osrmResp.ok) {
-        const osrmData = await osrmResp.json();
-        if (osrmData && osrmData.routes && osrmData.routes.length) {
-          rawRoutes = osrmData.routes;
-        }
-      }
-    }
-
-    if (!rawRoutes.length) {
+    if (!data.routes || !data.routes.length) {
       throw new Error('No navigable route found between these locations');
     }
 

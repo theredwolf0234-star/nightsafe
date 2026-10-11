@@ -45,7 +45,6 @@ function getMapStyle() {
   return CARTO_DARK_STYLE;
 }
 
-// Set initial Mapbox token if available or a dummy placeholder to avoid library startup exceptions
 if (hasValidMapboxToken()) {
   mapboxgl.accessToken = getMapboxToken();
 } else {
@@ -71,10 +70,6 @@ function initMap() {
   const container = document.getElementById('map');
   if (!container) return;
 
-  if (hasValidMapboxToken()) {
-    mapboxgl.accessToken = getMapboxToken();
-  }
-
   map = new mapboxgl.Map({
     container: 'map',
     style: getMapStyle(),
@@ -98,10 +93,6 @@ function initLiveMap() {
 
   const container = document.getElementById('liveMap');
   if (!container) return;
-
-  if (hasValidMapboxToken()) {
-    mapboxgl.accessToken = getMapboxToken();
-  }
 
   liveMap = new mapboxgl.Map({
     container: 'liveMap',
@@ -141,8 +132,6 @@ function setupHeatmapLayers() {
     data: geojson
   });
 
-  const beforeLayer = map.getLayer('waterway-label') ? 'waterway-label' : undefined;
-
   map.addLayer({
     id: 'safety-heat-layer',
     type: 'heatmap',
@@ -165,7 +154,7 @@ function setupHeatmapLayers() {
       'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 15, 26],
       'heatmap-opacity': 0.75
     }
-  }, beforeLayer);
+  }, 'waterway-label');
 
   map.setLayoutProperty('safety-heat-layer', 'visibility', 'none');
 }
@@ -182,14 +171,14 @@ function toggleHeatmap() {
     }
     if (btnText) btnText.textContent = 'Turn Off Safety Heatmap';
     if (btn) btn.classList.add('active');
-    if (typeof showToast === 'function') showToast('Safety risk heatmap activated on map');
+    showToast('Safety risk heatmap activated on map');
   } else {
     if (map.getLayer('safety-heat-layer')) {
       map.setLayoutProperty('safety-heat-layer', 'visibility', 'none');
     }
     if (btnText) btnText.textContent = 'Turn On Safety Heatmap';
     if (btn) btn.classList.remove('active');
-    if (typeof showToast === 'function') showToast('Safety heatmap disabled');
+    showToast('Safety heatmap disabled');
   }
 }
 
@@ -245,36 +234,12 @@ function clearRoutes() {
 }
 
 async function geocode(query) {
-  // If valid Mapbox token is present, try Mapbox Geocoding API first
-  if (hasValidMapboxToken()) {
-    try {
-      const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${getMapboxToken()}&limit=1`;
-      const resp = await fetch(url);
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data.features && data.features.length) {
-          const [lng, lat] = data.features[0].center;
-          return [lat, lng];
-        }
-      }
-    } catch (e) {
-      console.warn('[SafeRoute.AI] Mapbox geocode fallback:', e);
-    }
+  const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&limit=1`;
+  const resp = await fetch(url);
+  const data = await resp.json();
+  if (!data.features || !data.features.length) {
+    throw new Error(`Location not found: "${query}"`);
   }
-
-  // OpenStreetMap Nominatim Free Geocoder Fallback
-  try {
-    const osmUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
-    const osmResp = await fetch(osmUrl);
-    if (osmResp.ok) {
-      const osmData = await osmResp.json();
-      if (osmData && osmData.length > 0) {
-        return [parseFloat(osmData[0].lat), parseFloat(osmData[0].lon)];
-      }
-    }
-  } catch (err) {
-    console.warn('[SafeRoute.AI] Nominatim geocode error:', err);
-  }
-
-  throw new Error(`Location not found: "${query}"`);
+  const [lng, lat] = data.features[0].center;
+  return [lat, lng];
 }

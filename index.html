@@ -3,27 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SafeRoute.AI — Night Travel Guardian & AI Risk Engine</title>
-  <meta name="description" content="SafeRoute.AI helps night commuters navigate safely using AI-powered lighting-aware route optimization, crime heatmaps, safe haven proximity, and instant emergency tools.">
-  <meta name="keywords" content="SafeRoute, Night Travel Safety, AI Risk Engine, Street Lighting, Women Safety, Emergency SOS, Mapbox">
-  <meta name="author" content="SafeRoute.AI Team">
+  <title>Women's Safety — Night Travel Guardian &amp; AI Risk Engine</title>
+  <meta name="description" content="Women's Safety helps night commuters and women navigate safely using AI-powered lighting-aware route optimization, crime heatmaps, safe haven proximity, and instant emergency tools.">
+  <meta name="keywords" content="Women's Safety, Night Travel Safety, AI Risk Engine, Street Lighting, Women Safety, Emergency SOS, Mapbox">
+  <meta name="author" content="Women's Safety Team">
 
   <!-- Fonts & Mapbox Stylesheets -->
   <link rel="stylesheet" href="assets/fonts/inter.css">
   <link rel="stylesheet" href="css/mapbox-gl.css">
   <link rel="stylesheet" href="css/styles.css">
-  <script>
-    // Dynamically load Mapbox token from backend environment if running
-    fetch('/api/config')
-      .then(res => res.json())
-      .then(cfg => {
-        if (cfg && cfg.mapboxToken) {
-          window.MAPBOX_ACCESS_TOKEN = cfg.mapboxToken;
-          if (typeof mapboxgl !== 'undefined') mapboxgl.accessToken = cfg.mapboxToken;
-        }
-      })
-      .catch(() => {});
-  </script>
 </head>
 <body>
 
@@ -34,9 +22,9 @@
   <header>
     <div class="header-container">
       <button onclick="show('home')" class="brand-btn" id="navBrandBtn">
-        <div class="brand-icon">S</div>
+        <div class="brand-icon">W</div>
         <div>
-          <div class="brand-title">SafeRoute<span>.AI</span></div>
+          <div class="brand-title">Women's <span>Safety</span></div>
           <div class="brand-sub">Night Travel Guardian</div>
         </div>
       </button>
@@ -52,6 +40,9 @@
       <div class="header-actions">
         <div id="backendStatusBadge" class="backend-badge" title="Checking server status...">
           <span class="badge-dot"></span> Checking AI Engine...
+        </div>
+        <div id="dbStatusBadge" class="backend-badge" style="background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.35); color: #38bdf8; cursor: pointer;" title="Click to view SQLite database schema &amp; table records" onclick="openDbStatusModal()">
+          <span class="badge-dot" style="background: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span> SQLite DB: Checking...
         </div>
         <button onclick="openSOS()" class="btn-sos pulse" id="headerSosBtn">
           🚨 SOS
@@ -71,7 +62,7 @@
           <div class="hero-tag">✨ AI-POWERED NOCTURNAL SAFETY &amp; RISK OPTIMIZATION</div>
           <h1 class="hero-title">The safest route is better than the fastest route.</h1>
           <p class="hero-desc">
-            Standard maps only optimize for travel speed. <b>SafeRoute.AI</b> prioritizes human safety: evaluating streetlamp lumen density, 24/7 safe havens, and crime risk density to keep you protected after dark.
+            Standard maps only optimize for travel speed. <b>Women's Safety</b> prioritizes human safety: evaluating streetlamp lumen density, 24/7 safe havens, and crime risk density to keep you protected after dark.
           </p>
           <div class="hero-actions">
             <button onclick="show('planner')" class="btn-primary" id="heroStartBtn">
@@ -80,6 +71,9 @@
             <button onclick="detectLocation()" class="btn-outline" id="heroGpsBtn">
               📍 Detect My Location
             </button>
+            <a href="SafeRoute-AI.apk" download="SafeRoute-AI.apk" class="btn-outline" id="heroDownloadApkBtn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;" title="Download Women's Safety Android APK">
+              📱 Download Android App
+            </a>
             <button onclick="openSOS()" class="btn-danger-outline" id="heroSosBtn">
               🚨 Emergency SOS
             </button>
@@ -335,7 +329,7 @@
       <div>
         <h2 style="font-size: 1.85rem; font-weight: 800;">Trusted Emergency Contacts</h2>
         <p style="font-size: 0.9rem; color: #94a3b8;">
-          Contacts receive automated SMS alerts and one-tap dialing during emergencies.
+          Contacts receive instant WhatsApp & SMS alerts, one-tap dialing, and live GPS coordinates during emergencies.
         </p>
       </div>
 
@@ -366,7 +360,10 @@
         </form>
 
         <div class="glass" style="padding: 1.5rem;">
-          <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 1rem;">Your Guardians</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800;">Your Guardians</h3>
+            <span class="backend-badge" style="font-size: 10px; padding: 2px 8px; cursor: pointer;" onclick="openDbStatusModal()" title="Stored in SQLite contacts table">🗄️ SQLite contacts</span>
+          </div>
           <div id="contactsList">
             <p class="text-slate-500 text-sm">Loading contacts...</p>
           </div>
@@ -408,16 +405,24 @@
             <textarea id="repNotes" rows="3" required class="form-input" placeholder="Describe the safety hazard or condition observed…"></textarea>
           </div>
           <button type="submit" class="btn-primary" style="background: #dc2626; color: #ffffff; justify-content: center; width: 100%;">
-            💾 Save to Security Database
+            💾 Save to SQLite Database
           </button>
         </form>
 
         <div class="glass" style="padding: 1.5rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <h3 style="font-size: 1.1rem; font-weight: 800;">Recorded Incidents</h3>
-            <button onclick="exportReports()" class="btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
-              📥 Export JSON
-            </button>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 style="font-size: 1.1rem; font-weight: 800;">Recorded Incidents</h3>
+              <span class="backend-badge" style="font-size: 10px; padding: 2px 8px; cursor: pointer;" onclick="openDbStatusModal()" title="Stored in SQLite incidents table">🗄️ SQLite Synced</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button onclick="openDbStatusModal()" class="btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                🗄️ DB Stats
+              </button>
+              <button onclick="exportReports()" class="btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">
+                📥 Export JSON
+              </button>
+            </div>
           </div>
           <div id="reportsList">
             <p class="text-slate-500 text-sm">Loading security reports...</p>
@@ -449,6 +454,35 @@
       </div>
 
       <div id="sosResult"></div>
+    </div>
+  </div>
+
+  <!-- SQLITE DATABASE INSPECTION MODAL -->
+  <div id="dbModal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 580px; text-align: left; border-color: rgba(56, 189, 248, 0.35);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.6rem;">🗄️</span>
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #ffffff;">SQLite Relational Database</h3>
+            <div style="font-size: 0.75rem; color: #38bdf8;">ACID Compliant • WAL Concurrency • Built-in Zero Dependencies</div>
+          </div>
+        </div>
+        <button onclick="closeDbStatusModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.25rem; cursor: pointer;">✕</button>
+      </div>
+
+      <div id="dbModalBody">
+        <p style="color: #94a3b8; font-size: 0.85rem;">Loading database metrics...</p>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 1.25rem; justify-content: flex-end;">
+        <button onclick="refreshDbModal()" class="btn-outline" style="font-size: 0.85rem; padding: 0.45rem 0.9rem;">
+          🔄 Refresh Metrics
+        </button>
+        <button onclick="closeDbStatusModal()" class="btn-primary" style="font-size: 0.85rem; padding: 0.45rem 1rem;">
+          Close
+        </button>
+      </div>
     </div>
   </div>
 

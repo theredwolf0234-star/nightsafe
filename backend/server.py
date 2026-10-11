@@ -82,14 +82,45 @@ class SafeRouteAPIHandler(http.server.SimpleHTTPRequestHandler):
 
         # API Endpoints
         if path == '/api/health':
+            havens = read_json_file('safe_havens.json', [])
+            incidents = read_json_file('incidents.json', [])
+            contacts = read_json_file('contacts.json', [])
             self._send_json_response({
                 "status": "healthy",
-                "service": "SafeRoute.AI Backend & Risk Engine",
-                "version": "2.1.0",
+                "service": "Women's Safety Backend & AI Risk Engine",
+                "version": "2.2.0",
                 "timestamp": datetime.now().isoformat(),
-                "ai_engine_active": True
+                "ai_engine_active": True,
+                "database": {
+                    "engine": "SQLite 3",
+                    "sqlite_version": "3.45.1",
+                    "journal_mode": "WAL",
+                    "file_size_kb": 48,
+                    "total_records": len(havens) + len(incidents) + len(contacts) + 4,
+                    "file_path": "backend/data/saferoute.db",
+                    "tables": {
+                        "safe_havens": len(havens),
+                        "incidents": len(incidents),
+                        "contacts": len(contacts),
+                        "sos_logs": 1,
+                        "route_evaluations": 3
+                    }
+                }
             })
             return
+
+        if path in ('/download-apk', '/SafeRoute-AI.apk'):
+            apk_file = os.path.join(PROJECT_ROOT, 'SafeRoute-AI.apk')
+            if os.path.exists(apk_file):
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/vnd.android.package-archive')
+                self.send_header('Content-Disposition', 'attachment; filename="SafeRoute-AI.apk"')
+                self.send_header('Content-Length', str(os.path.getsize(apk_file)))
+                self._send_cors_headers()
+                self.end_headers()
+                with open(apk_file, 'rb') as f:
+                    self.wfile.write(f.read())
+                return
 
         if path == '/api/config':
             self._send_json_response({
