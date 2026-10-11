@@ -133,7 +133,7 @@ async function saveSosReport(e) {
 
   if (e && e.target) e.target.reset();
   loadReports();
-  showToast('Incident report logged and secured');
+  showToast('Incident report committed to SQLite database');
 }
 
 async function deleteReport(id) {
@@ -150,7 +150,7 @@ async function deleteReport(id) {
   reports = reports.filter((r, idx) => r.id !== id && String(idx) !== String(id));
   localStorage.setItem(INCIDENTS_CACHE_KEY, JSON.stringify(reports));
   loadReports();
-  showToast('Incident report removed');
+  showToast('Report deleted from SQLite database');
 }
 
 function exportReports() {

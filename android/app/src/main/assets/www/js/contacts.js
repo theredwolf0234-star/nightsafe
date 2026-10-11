@@ -142,7 +142,7 @@ async function addContact(e) {
           if (window.riskClient.checkBackendStatus) window.riskClient.checkBackendStatus();
           e.target.reset();
           loadContacts();
-          showToast('Trusted guardian saved securely');
+          showToast('Trusted guardian saved to SQLite database');
           return;
         }
       }
@@ -156,7 +156,7 @@ async function addContact(e) {
 
   e.target.reset();
   loadContacts();
-  showToast('Trusted guardian saved securely');
+  showToast('Trusted guardian saved locally');
 }
 
 async function deleteContact(id) {
@@ -169,7 +169,7 @@ async function deleteContact(id) {
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data.contacts));
           if (window.riskClient.checkBackendStatus) window.riskClient.checkBackendStatus();
           loadContacts();
-          showToast('Contact removed');
+          showToast('Contact removed from SQLite database');
           return;
         }
       }

@@ -258,7 +258,7 @@ async function geocode(query) {
     } catch {}
   }
 
-  // Free OpenStreetMap Nominatim geocoding fallback (no API key required)
+  // Free OpenStreetMap Nominatim geocoding fallback (zero API key required)
   try {
     const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
     const resp = await fetch(nomUrl, { headers: { 'Accept-Language': 'en' } });
