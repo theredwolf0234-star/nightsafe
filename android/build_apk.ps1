@@ -40,6 +40,8 @@ Copy-Item "$shortRoot\index.html" "$www\index.html" -Force
 Copy-Item "$shortRoot\css" "$www\" -Recurse -Force
 Copy-Item "$shortRoot\js" "$www\" -Recurse -Force
 Copy-Item "$shortRoot\assets" "$www\" -Recurse -Force
+if (Test-Path "$shortRoot\manifest.json") { Copy-Item "$shortRoot\manifest.json" "$www\" -Force }
+if (Test-Path "$shortRoot\sw.js") { Copy-Item "$shortRoot\sw.js" "$www\" -Force }
 New-Item -ItemType Directory -Force -Path "$www\backend\ai_risk_engine" | Out-Null
 Copy-Item "$shortRoot\backend\ai_risk_engine\*" "$www\backend\ai_risk_engine" -Recurse -Force
 New-Item -ItemType Directory -Force -Path "$www\backend\data" | Out-Null

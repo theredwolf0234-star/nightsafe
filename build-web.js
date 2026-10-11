@@ -30,6 +30,9 @@ copyRecursive(path.join(__dirname, 'assets'), path.join(publicDir, 'assets'));
 copyRecursive(path.join(__dirname, 'backend', 'ai_risk_engine'), path.join(publicDir, 'backend', 'ai_risk_engine'));
 copyRecursive(path.join(__dirname, 'backend', 'data'), path.join(publicDir, 'backend', 'data'));
 
+copyRecursive(path.join(__dirname, 'manifest.json'), path.join(publicDir, 'manifest.json'));
+copyRecursive(path.join(__dirname, 'sw.js'), path.join(publicDir, 'sw.js'));
+
 if (fs.existsSync(path.join(__dirname, 'SafeRoute-AI.apk'))) {
   copyRecursive(path.join(__dirname, 'SafeRoute-AI.apk'), path.join(publicDir, 'SafeRoute-AI.apk'));
 }

@@ -360,3 +360,45 @@ window.addEventListener('load', () => {
 
   show('home');
 });
+
+// Mobile App & PWA Installation Logic
+let deferredPwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPwaPrompt = e;
+  const btn = $('pwaInstallBtn');
+  if (btn) {
+    btn.innerHTML = '📲 Install App (Ready)';
+    btn.classList.add('pulse');
+  }
+});
+
+function openAppModal() {
+  const modal = $('appModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAppModal() {
+  const modal = $('appModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function installPWA() {
+  if (deferredPwaPrompt) {
+    deferredPwaPrompt.prompt();
+    deferredPwaPrompt.userChoice.then(choiceResult => {
+      if (choiceResult.outcome === 'accepted') {
+        showToast('App installed to your device successfully!');
+        closeAppModal();
+      }
+      deferredPwaPrompt = null;
+    });
+  } else {
+    showToast('To install: click your browser menu (⋮ or Share) and choose "Add to Home Screen" or "Install App".');
+  }
+}
+
+// Service Worker Registration for Offline App Execution
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}

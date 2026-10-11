@@ -12,6 +12,9 @@
   <link rel="stylesheet" href="assets/fonts/inter.css">
   <link rel="stylesheet" href="css/mapbox-gl.css">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#030812">
+  <link rel="apple-touch-icon" href="assets/images/icon-192.png">
 </head>
 <body>
 
@@ -38,6 +41,9 @@
       </nav>
 
       <div class="header-actions">
+        <button onclick="openAppModal()" class="btn-app-install" id="headerAppBtn">
+          📱 Get App
+        </button>
         <button onclick="openSOS()" class="btn-sos pulse" id="headerSosBtn">
           🚨 SOS
         </button>
@@ -474,6 +480,79 @@
           🔄 Refresh Metrics
         </button>
         <button onclick="closeDbStatusModal()" class="btn-primary" style="font-size: 0.85rem; padding: 0.45rem 1rem;">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GET MOBILE APP / PWA MODAL -->
+  <div id="appModal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 620px; text-align: left; border-color: rgba(56, 189, 248, 0.4);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, #10b981, #06b6d4); display: grid; place-items: center; font-size: 1.4rem;">
+            📱
+          </div>
+          <div>
+            <h3 style="font-size: 1.2rem; font-weight: 800; color: #ffffff;">Get the Women's Safety App</h3>
+            <div style="font-size: 0.78rem; color: #38bdf8;">Choose your preferred installation method</div>
+          </div>
+        </div>
+        <button onclick="closeAppModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.35rem; cursor: pointer; padding: 4px;">✕</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+        <!-- Option 1: Native APK -->
+        <div class="card" style="padding: 1.25rem; border-color: rgba(16, 185, 129, 0.4); background: rgba(6, 20, 34, 0.85); display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+              <span style="font-size: 1.8rem;">🤖</span>
+              <span class="backend-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">Android APK</span>
+            </div>
+            <h4 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Native Android App</h4>
+            <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.45; margin-bottom: 1rem;">
+              Production release APK signed with v2/v3 signatures. Full offline fallback, background GPS tracking, dialer and WhatsApp intent routing.
+            </p>
+            <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 0.85rem;">
+              • Size: <b>1.44 MB</b><br>
+              • Target: Android 7.0 - 14<br>
+              • Package: <code>ai.saferoute.app</code>
+            </div>
+          </div>
+          <a href="SafeRoute-AI.apk" download="SafeRoute-AI.apk" class="btn-primary" style="text-decoration: none; justify-content: center; font-size: 0.85rem; padding: 0.6rem;">
+            ⬇️ Download Android APK
+          </a>
+        </div>
+
+        <!-- Option 2: Install PWA -->
+        <div class="card" style="padding: 1.25rem; border-color: rgba(56, 189, 248, 0.4); background: rgba(6, 20, 34, 0.85); display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+              <span style="font-size: 1.8rem;">⚡</span>
+              <span class="backend-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8;">Web App (PWA)</span>
+            </div>
+            <h4 style="font-size: 1.05rem; font-weight: 800; color: #ffffff; margin-bottom: 0.35rem;">Install to Device</h4>
+            <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.45; margin-bottom: 1rem;">
+              Install directly on your phone or computer. Launches full-screen from your Home Screen with instant loading and offline caching.
+            </p>
+            <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 0.85rem;">
+              • Chrome, Edge, Safari, Opera<br>
+              • Zero storage footprint<br>
+              • Auto-updates with latest models
+            </div>
+          </div>
+          <button onclick="installPWA()" id="pwaInstallBtn" class="btn-outline" style="justify-content: center; font-size: 0.85rem; padding: 0.6rem; border-color: #38bdf8; color: #38bdf8;">
+            📲 Install App to Screen
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.25rem; padding-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <span style="font-size: 0.75rem; color: #64748b;">
+          💡 iPhone users: Tap <b>Share</b> in Safari, then <b>"Add to Home Screen"</b>.
+        </span>
+        <button onclick="closeAppModal()" class="btn-outline" style="font-size: 0.8rem; padding: 0.4rem 0.9rem;">
           Close
         </button>
       </div>
