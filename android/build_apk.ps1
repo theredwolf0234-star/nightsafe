@@ -19,6 +19,11 @@ $Aapt2 = "$BuildToolsDir\aapt2.exe"
 $D8 = "$BuildToolsDir\d8.bat"
 $ZipAlign = "$BuildToolsDir\zipalign.exe"
 $ApkSigner = "$BuildToolsDir\apksigner.bat"
+$Jar = "C:\Program Files\Java\jdk-25.0.2\bin\jar.exe"
+if (-not (Test-Path $Jar)) {
+    $foundJar = Get-Command "jar" -ErrorAction SilentlyContinue
+    if ($foundJar) { $Jar = $foundJar.Source }
+}
 
 if (-not (Test-Path $PlatformJar)) {
     throw "Android SDK platform jar not found at $PlatformJar"
@@ -66,14 +71,13 @@ $CompiledResZip = "$BuildDir\compiled_res.zip"
 & $Aapt2 compile --dir "$AndroidDir\app\src\main\res" -o $CompiledResZip
 if ($LASTEXITCODE -ne 0) { throw "AAPT2 compile failed" }
 
-# 4. Link APK with manifest and assets
+# 4. Link APK package and generate R.java
 Write-Host "[4/8] Linking APK package and generating R.java..." -ForegroundColor Yellow
 $LinkedApk = "$BuildDir\linked.apk"
 if (Test-Path $LinkedApk) { Remove-Item -Force $LinkedApk }
 & $Aapt2 link $CompiledResZip `
     -I $shortPlatformJar `
     --manifest "$AndroidDir\app\src\main\AndroidManifest.xml" `
-    -A "$AndroidDir\app\src\main\assets" `
     --java $GenDir `
     -o $LinkedApk
 if ($LASTEXITCODE -ne 0) { throw "AAPT2 link failed" }
@@ -90,41 +94,19 @@ $ClassFiles = Get-ChildItem -Recurse -Path $ClassesDir -Filter "*.class" | ForEa
 & $D8 --lib $shortPlatformJar --output $DexDir $ClassFiles
 if ($LASTEXITCODE -ne 0) { throw "D8 compilation failed" }
 
-# 7. Normalize APK ZIP entries & inject classes.dex
-Write-Host "[7/8] Normalizing APK ZIP structure and injecting classes.dex..." -ForegroundColor Yellow
-Add-Type -AssemblyName System.IO.Compression
-Add-Type -AssemblyName System.IO.Compression.FileSystem
+# 7. Package classes.dex and web assets using standard JAR tool
+Write-Host "[7/8] Packaging classes.dex and web assets into APK with clean standard entries..." -ForegroundColor Yellow
+& $Jar -u -0 -f $LinkedApk -C $DexDir classes.dex
+if ($LASTEXITCODE -ne 0) { throw "Failed to add classes.dex" }
 
-$PackagedApk = "$BuildDir\packaged.apk"
-if (Test-Path $PackagedApk) { Remove-Item -Force $PackagedApk }
-
-$sourceZip = [System.IO.Compression.ZipFile]::OpenRead($LinkedApk)
-$targetZip = [System.IO.Compression.ZipFile]::Open($PackagedApk, [System.IO.Compression.ZipArchiveMode]::Create)
-
-foreach ($entry in $sourceZip.Entries) {
-    $normalizedName = $entry.FullName.Replace('\', '/')
-    if ($normalizedName -match "__pycache__|\.pyc$") { continue }
-    if ($normalizedName -eq "classes.dex") { continue }
-
-    $newEntry = $targetZip.CreateEntry($normalizedName, [System.IO.Compression.CompressionLevel]::Optimal)
-    $inStream = $entry.Open()
-    $outStream = $newEntry.Open()
-    $inStream.CopyTo($outStream)
-    $outStream.Dispose()
-    $inStream.Dispose()
-}
-$sourceZip.Dispose()
-
-# Inject classes.dex
-$dexFile = "$DexDir\classes.dex"
-[System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($targetZip, $dexFile, "classes.dex") | Out-Null
-$targetZip.Dispose()
+& $Jar -u -f $LinkedApk -C "$AndroidDir\app\src\main" assets
+if ($LASTEXITCODE -ne 0) { throw "Failed to add assets" }
 
 # 8. ZipAlign & Sign APK
-Write-Host "[8/8] Zipaligning and Signing APK with release keystore..." -ForegroundColor Yellow
+Write-Host "[8/8] Zipaligning and Signing APK with release keystore (v1 + v2 + v3 schemes)..." -ForegroundColor Yellow
 $AlignedApk = "$BuildDir\aligned.apk"
 if (Test-Path $AlignedApk) { Remove-Item -Force $AlignedApk }
-& $ZipAlign -f -p 4 $PackagedApk $AlignedApk
+& $ZipAlign -f -p 4 $LinkedApk $AlignedApk
 if ($LASTEXITCODE -ne 0) { throw "Zipalign failed" }
 
 $Keystore = "$AndroidDir\keystore\saferoute.keystore"
@@ -139,6 +121,10 @@ if (Test-Path $FinalApkRoot) { Remove-Item -Force $FinalApkRoot }
     --ks-pass "pass:saferoute123" `
     --key-pass "pass:saferoute123" `
     --ks-key-alias saferoute `
+    --v1-signing-enabled true `
+    --v2-signing-enabled true `
+    --v3-signing-enabled true `
+    --min-sdk-version 21 `
     --out $FinalApkRoot `
     $AlignedApk
 
@@ -148,7 +134,7 @@ Copy-Item $FinalApkRoot $FinalApkOutputs -Force
 Copy-Item $FinalApkRoot $FinalApkAndroid -Force
 
 Write-Host "--> Verifying APK signature..." -ForegroundColor Green
-& $ApkSigner verify --verbose $FinalApkRoot
+& $ApkSigner verify --verbose --min-sdk-version 21 $FinalApkRoot
 
 $fileInfo = Get-Item $FinalApkRoot
 Write-Host ""
