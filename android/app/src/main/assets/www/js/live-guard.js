@@ -99,7 +99,9 @@ function updateLiveMarker(lat, lng) {
     liveMarker.setLngLat([lng, lat]);
   }
 
-  liveMap.flyTo({ center: [lng, lat], zoom: 15.5 });
+  const currentZoom = liveMap.getZoom ? liveMap.getZoom() : 15;
+  const targetZoom = (currentZoom && currentZoom >= 13) ? currentZoom : 15;
+  liveMap.flyTo({ center: [lng, lat], zoom: targetZoom });
 }
 
 function addSafetyFeed(msg) {

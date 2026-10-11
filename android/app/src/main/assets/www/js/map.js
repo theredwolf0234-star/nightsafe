@@ -3,8 +3,8 @@
  * Mapbox GL JS integrations, multi-route styling, safe haven markers, and safety heatmaps.
  */
 
-// High-performance true dark map style (Zero configuration, 100% free, NO API KEY required, NO watermarks)
-const ESRI_DARK_STYLE = {
+// Zero-configuration, 100% free, NO API KEY required, high-performance basemap styles
+const ZERO_CONFIG_MAP_STYLE = {
   version: 8,
   sources: {
     'esri-dark-base': {
@@ -13,6 +13,7 @@ const ESRI_DARK_STYLE = {
         'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
       ],
       tileSize: 256,
+      maxzoom: 16, // Critical: Esri Canvas Dark caps at level 16. Specifying maxzoom: 16 enables automatic WebGL overzooming, completely preventing Esri "Map data not yet available" placeholder tiles on mobile DPR displays!
       attribution: '&copy; Esri &mdash; SafeRoute.AI Navigation'
     },
     'esri-dark-reference': {
@@ -20,7 +21,26 @@ const ESRI_DARK_STYLE = {
       tiles: [
         'https://services.arcgisonline.com/arcgis/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
       ],
-      tileSize: 256
+      tileSize: 256,
+      maxzoom: 16
+    },
+    'osm-base': {
+      type: 'raster',
+      tiles: [
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+      ],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    },
+    'satellite-base': {
+      type: 'raster',
+      tiles: [
+        'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+      ],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: '&copy; Esri World Imagery'
     }
   },
   layers: [
@@ -29,17 +49,78 @@ const ESRI_DARK_STYLE = {
       type: 'raster',
       source: 'esri-dark-base',
       minzoom: 0,
-      maxzoom: 19
+      maxzoom: 22,
+      layout: { visibility: 'visible' }
     },
     {
       id: 'esri-dark-reference-layer',
       type: 'raster',
       source: 'esri-dark-reference',
       minzoom: 0,
-      maxzoom: 19
+      maxzoom: 22,
+      layout: { visibility: 'visible' }
+    },
+    {
+      id: 'osm-base-layer',
+      type: 'raster',
+      source: 'osm-base',
+      minzoom: 0,
+      maxzoom: 22,
+      layout: { visibility: 'none' }
+    },
+    {
+      id: 'satellite-base-layer',
+      type: 'raster',
+      source: 'satellite-base',
+      minzoom: 0,
+      maxzoom: 22,
+      layout: { visibility: 'none' }
     }
   ]
 };
+
+const ESRI_DARK_STYLE = ZERO_CONFIG_MAP_STYLE;
+
+let currentBasemapMode = 'dark';
+
+function setBasemapLayer(mode) {
+  currentBasemapMode = mode || 'dark';
+  const mapsToUpdate = [map, liveMap].filter(Boolean);
+
+  mapsToUpdate.forEach(targetMap => {
+    try {
+      if (mode === 'osm') {
+        if (targetMap.getLayer('esri-dark-base-layer')) targetMap.setLayoutProperty('esri-dark-base-layer', 'visibility', 'none');
+        if (targetMap.getLayer('esri-dark-reference-layer')) targetMap.setLayoutProperty('esri-dark-reference-layer', 'visibility', 'none');
+        if (targetMap.getLayer('satellite-base-layer')) targetMap.setLayoutProperty('satellite-base-layer', 'visibility', 'none');
+        if (targetMap.getLayer('osm-base-layer')) targetMap.setLayoutProperty('osm-base-layer', 'visibility', 'visible');
+      } else if (mode === 'satellite') {
+        if (targetMap.getLayer('esri-dark-base-layer')) targetMap.setLayoutProperty('esri-dark-base-layer', 'visibility', 'none');
+        if (targetMap.getLayer('osm-base-layer')) targetMap.setLayoutProperty('osm-base-layer', 'visibility', 'none');
+        if (targetMap.getLayer('satellite-base-layer')) targetMap.setLayoutProperty('satellite-base-layer', 'visibility', 'visible');
+        if (targetMap.getLayer('esri-dark-reference-layer')) targetMap.setLayoutProperty('esri-dark-reference-layer', 'visibility', 'visible');
+      } else {
+        // default 'dark'
+        if (targetMap.getLayer('osm-base-layer')) targetMap.setLayoutProperty('osm-base-layer', 'visibility', 'none');
+        if (targetMap.getLayer('satellite-base-layer')) targetMap.setLayoutProperty('satellite-base-layer', 'visibility', 'none');
+        if (targetMap.getLayer('esri-dark-base-layer')) targetMap.setLayoutProperty('esri-dark-base-layer', 'visibility', 'visible');
+        if (targetMap.getLayer('esri-dark-reference-layer')) targetMap.setLayoutProperty('esri-dark-reference-layer', 'visibility', 'visible');
+      }
+    } catch (e) {
+      console.warn('Basemap layer toggle exception:', e);
+    }
+  });
+
+  ['dark', 'osm', 'satellite'].forEach(m => {
+    document.querySelectorAll(`.btn-layer-${m}`).forEach(btn => {
+      btn.classList.toggle('active', m === currentBasemapMode);
+    });
+  });
+
+  try {
+    localStorage.setItem('SAFEROUTE_BASEMAP', currentBasemapMode);
+  } catch {}
+}
 
 function getMapboxToken() {
   return window.MAPBOX_ACCESS_TOKEN || localStorage.getItem('MAPBOX_ACCESS_TOKEN') || '';
@@ -86,7 +167,8 @@ function initMap() {
     container: 'map',
     style: getMapStyle(),
     center: DEFAULT_CENTER,
-    zoom: DEFAULT_ZOOM
+    zoom: DEFAULT_ZOOM,
+    maxZoom: 18.5
   });
 
   map.addControl(new mapboxgl.NavigationControl(), 'top-right');
@@ -94,6 +176,8 @@ function initMap() {
   map.on('load', () => {
     setupHeatmapLayers();
     loadSafeHavenMapPins();
+    const saved = localStorage.getItem('SAFEROUTE_BASEMAP') || 'dark';
+    if (saved !== 'dark') setBasemapLayer(saved);
   });
 }
 
@@ -110,10 +194,16 @@ function initLiveMap() {
     container: 'liveMap',
     style: getMapStyle(),
     center: DEFAULT_CENTER,
-    zoom: 13
+    zoom: 14,
+    maxZoom: 18.5
   });
 
   liveMap.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+  liveMap.on('load', () => {
+    const saved = localStorage.getItem('SAFEROUTE_BASEMAP') || 'dark';
+    if (saved !== 'dark') setBasemapLayer(saved);
+  });
 }
 
 function setupHeatmapLayers() {
@@ -166,7 +256,7 @@ function setupHeatmapLayers() {
       'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 15, 26],
       'heatmap-opacity': 0.75
     }
-  }, 'waterway-label');
+  }, map.getLayer('waterway-label') ? 'waterway-label' : undefined);
 
   map.setLayoutProperty('safety-heat-layer', 'visibility', 'none');
 }

@@ -188,10 +188,16 @@
           <p style="font-size: 0.9rem; color: #94a3b8;">
             Evaluates roadway illumination, time-of-night curfew risk, and emergency safe havens.
           </p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+          <div class="map-layer-selector">
+            <button type="button" onclick="setBasemapLayer('dark')" class="map-layer-btn btn-layer-dark active" title="Night Dark Theme">🌙 Night Dark</button>
+            <button type="button" onclick="setBasemapLayer('osm')" class="map-layer-btn btn-layer-osm" title="OpenStreetMap Street Detail">🗺️ Streets (OSM)</button>
+            <button type="button" onclick="setBasemapLayer('satellite')" class="map-layer-btn btn-layer-satellite" title="Satellite Imagery">🛰️ Satellite</button>
+          </div>
+          <button onclick="toggleHeatmap()" id="heatmapToggleBtn" class="btn-outline" style="border-color: rgba(52, 211, 153, 0.4); background: rgba(16, 185, 129, 0.1);">
+            🔥 <span id="heatmapBtnText">Turn On Safety Heatmap</span>
+          </button>
         </div>
-        <button onclick="toggleHeatmap()" id="heatmapToggleBtn" class="btn-outline" style="border-color: rgba(52, 211, 153, 0.4); background: rgba(16, 185, 129, 0.1);">
-          🔥 <span id="heatmapBtnText">Turn On Safety Heatmap</span>
-        </button>
       </div>
 
       <div class="grid-planner">
@@ -284,7 +290,12 @@
             Active GPS telemetry, route anomaly detection, and automated emergency triggers.
           </p>
         </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+          <div class="map-layer-selector">
+            <button type="button" onclick="setBasemapLayer('dark')" class="map-layer-btn btn-layer-dark active" title="Night Dark Theme">🌙 Dark</button>
+            <button type="button" onclick="setBasemapLayer('osm')" class="map-layer-btn btn-layer-osm" title="OpenStreetMap Street Detail">🗺️ Streets</button>
+            <button type="button" onclick="setBasemapLayer('satellite')" class="map-layer-btn btn-layer-satellite" title="Satellite Imagery">🛰️ Sat</button>
+          </div>
           <button onclick="startTracking()" class="btn-primary" id="liveStartBtn">
             🟢 Start GPS Tracking
           </button>

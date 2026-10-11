@@ -537,6 +537,48 @@ main {
   overflow: hidden;
   border: 1px solid var(--border-glass);
   box-shadow: var(--shadow-card);
+  position: relative;
+}
+
+/* Basemap Layer Toolbar */
+.map-layer-selector {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(10, 22, 36, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 3px;
+}
+
+.map-layer-btn {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 6px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.map-layer-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.map-layer-btn.active {
+  background: var(--color-emerald);
+  color: #030812;
+  font-weight: 800;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
 }
 
 /* Route List & Form Controls */
