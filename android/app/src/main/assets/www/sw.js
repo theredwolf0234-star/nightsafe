@@ -1,5 +1,5 @@
 // Women's Safety Service Worker for Offline Execution and PWA Installation
-const CACHE_NAME = 'womens-safety-v2.2';
+const CACHE_NAME = 'womens-safety-v4.0';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -13,6 +13,8 @@ const ASSETS_TO_CACHE = [
   './js/contacts.js',
   './js/incidents.js',
   './js/live-guard.js',
+  './js/app.js',
+  './backend/ai_risk_engine/risk_engine.js',
   './assets/images/icon-192.png',
   './assets/images/icon-512.png',
   './manifest.json'
@@ -39,19 +41,28 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Only cache GET requests
+  // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
+  // Network-First with Cache Fallback: ensures live updates are fetched immediately
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => {
-        if (event.request.headers.get('accept')?.includes('text/html')) {
-          return caches.match('./index.html');
+    fetch(event.request)
+      .then(networkResponse => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
         }
-      });
-    })
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request).then(cached => {
+          if (cached) return cached;
+          if (event.request.headers.get('accept')?.includes('text/html')) {
+            return caches.match('./index.html');
+          }
+        });
+      })
   );
 });

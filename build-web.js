@@ -33,8 +33,14 @@ copyRecursive(path.join(__dirname, 'backend', 'data'), path.join(publicDir, 'bac
 copyRecursive(path.join(__dirname, 'manifest.json'), path.join(publicDir, 'manifest.json'));
 copyRecursive(path.join(__dirname, 'sw.js'), path.join(publicDir, 'sw.js'));
 
-if (fs.existsSync(path.join(__dirname, 'SafeRoute-AI.apk'))) {
-  copyRecursive(path.join(__dirname, 'SafeRoute-AI.apk'), path.join(publicDir, 'SafeRoute-AI.apk'));
+// Also sync web files to Android assets if present
+const androidWwwDir = path.join(__dirname, 'android', 'app', 'src', 'main', 'assets', 'www');
+if (fs.existsSync(androidWwwDir)) {
+  copyRecursive(path.join(__dirname, 'index.html'), path.join(androidWwwDir, 'index.html'));
+  copyRecursive(path.join(__dirname, 'css'), path.join(androidWwwDir, 'css'));
+  copyRecursive(path.join(__dirname, 'js'), path.join(androidWwwDir, 'js'));
+  copyRecursive(path.join(__dirname, 'backend', 'ai_risk_engine'), path.join(androidWwwDir, 'backend', 'ai_risk_engine'));
+  console.log('[Build] Synced updated web assets to android assets www directory.');
 }
 
 console.log('[Build] Successfully prepared public/ output directory for Vercel!');

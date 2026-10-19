@@ -123,7 +123,13 @@ class AIRiskEngine {
     const sampledCoords = this.sampleCoordinates(coords, 35);
     const totalSegments = sampledCoords.length;
 
-    const baseLightingTier = routeIndex === 0 ? 92.0 : Math.max(40.0, 78.0 - routeIndex * 16.0);
+    let baseLightingTier = 92.0;
+    if (routeIndex === 0) baseLightingTier = 92.0;
+    else if (routeIndex === 1) baseLightingTier = 86.0;
+    else if (routeIndex === 2) baseLightingTier = 89.0;
+    else if (routeIndex === 3) baseLightingTier = 82.0;
+    else if (routeIndex === 4) baseLightingTier = 68.0;
+    else baseLightingTier = Math.max(40.0, 75.0 - routeIndex * 10.0);
 
     const segmentEvaluations = [];
     const routeHavens = {};
@@ -214,13 +220,42 @@ class AIRiskEngine {
       riskColor = '#f59e0b';
     }
 
-    const corridor = routeIndex === 0
-      ? 'Primary Arterial Corridor (High-Lumen Streetlights)'
-      : (routeIndex === 1 ? 'Secondary Urban Arterial (Mixed Commercial)' : 'Interior Residential / Unmonitored Bypass');
+    let routeTitle = 'Primary Lit Route (AI Guardian Recommended)';
+    let corridor = 'Primary Arterial Corridor (High-Lumen Streetlights)';
+    let surveillance = 'Dense Municipal CCTV Grid (High)';
+    let cctvScore = 90;
 
-    const surveillance = routeIndex === 0
-      ? 'Dense CCTV Grid (High)'
-      : (routeIndex === 1 ? 'Moderate Municipal CCTV' : 'Sparse / Spotty Private CCTV');
+    if (routeIndex === 0) {
+      routeTitle = 'Primary Lit Route (AI Guardian Recommended)';
+      corridor = 'Primary Arterial Corridor (High-Lumen Streetlights)';
+      surveillance = 'Dense Municipal CCTV Grid (High)';
+      cctvScore = 90;
+    } else if (routeIndex === 1) {
+      routeTitle = 'Well-Lit Commercial Boulevard';
+      corridor = 'Major Commercial Avenue (Active Storefronts & Streetlamps)';
+      surveillance = 'Active Commercial & Municipal CCTV (High)';
+      cctvScore = 82;
+    } else if (routeIndex === 2) {
+      routeTitle = 'Safe-Haven Patrol Corridor';
+      corridor = 'Emergency Checkpoint Route (Police & Hospital Vicinity)';
+      surveillance = 'Police Booth & Emergency Hub Security (Very High)';
+      cctvScore = 86;
+    } else if (routeIndex === 3) {
+      routeTitle = 'Express Arterial Highway';
+      corridor = 'High-Capacity Ring Road / Lighted Arterial Expressway';
+      surveillance = 'Traffic Monitoring & High-Speed Highway Cameras';
+      cctvScore = 78;
+    } else if (routeIndex === 4) {
+      routeTitle = 'Fastest Direct Route (Speed Priority)';
+      corridor = 'Direct Radial Arterials & Mixed Connecting Roads';
+      surveillance = 'Moderate / Spotty CCTV Coverage (Medium)';
+      cctvScore = 55;
+    } else {
+      routeTitle = `Alternative Route ${routeIndex + 1}`;
+      corridor = 'Secondary Urban Corridor';
+      surveillance = 'Standard Municipal CCTV';
+      cctvScore = Math.max(30, 60 - routeIndex * 10);
+    }
 
     const hazardWarnings = [];
     if (maxDarkStreak >= 3) {
@@ -248,7 +283,7 @@ class AIRiskEngine {
 
     return {
       route_index: routeIndex,
-      title: routeIndex === 0 ? 'Primary Lit Route (AI Guardian Recommended)' : `Alternative Route ${routeIndex}`,
+      title: routeTitle,
       distance_km: Math.round(distanceKm * 10) / 10,
       duration_min: durationMin,
       safety_score: compositeScore,
@@ -262,7 +297,7 @@ class AIRiskEngine {
         lighting_score: overallLighting,
         haven_proximity_score: Math.round(avgHaven),
         incident_avoidance_score: Math.round(100.0 - avgIncident),
-        cctv_coverage_score: routeIndex === 0 ? 88 : (routeIndex === 1 ? 65 : 38),
+        cctv_coverage_score: cctvScore,
         temporal_vulnerability_penalty: Math.round((1.0 - timeFactor) * 100),
         exposure_factor: Math.round(modeMult * 100) / 100
       },
@@ -291,14 +326,14 @@ class AIRiskEngine {
 
       const safetyText = safetyDiff > 0 ? `+${safetyDiff}% safer` : `${safetyDiff}% lower safety`;
 
-      comparisons.append ? comparisons.push({
+      comparisons.push({
         alt_index: alt.route_index,
         alt_title: alt.title,
         summary: `Primary route is ${safetyText} and offers +${lightingDiff}% brighter illumination than ${alt.title}.`,
         safety_delta: safetyDiff,
         lighting_delta: lightingDiff,
         time_delta_min: timeDiff
-      }) : null;
+      });
     }
 
     return {

@@ -326,13 +326,98 @@ async function loadSafeHavenMapPins() {
   });
 }
 
+let originMarker = null;
+let destMarker = null;
+
 function clearRoutes() {
   if (!map) return;
+
+  // 1. Remove all corridor layers first
   routeSources.forEach(id => {
-    if (map.getLayer(id)) map.removeLayer(id);
-    if (map.getSource(id)) map.removeSource(id);
+    try {
+      if (map.getLayer(id)) map.removeLayer(id);
+    } catch (e) {}
   });
+
+  for (let i = 0; i < 10; i++) {
+    try { if (map.getLayer(`route-${i}-casing`)) map.removeLayer(`route-${i}-casing`); } catch (e) {}
+    try { if (map.getLayer(`route-${i}`)) map.removeLayer(`route-${i}`); } catch (e) {}
+  }
+
+  // 2. Remove all corridor sources once layers are cleared
+  routeSources.forEach(id => {
+    try {
+      if (map.getSource(id)) map.removeSource(id);
+    } catch (e) {}
+  });
+
+  for (let i = 0; i < 10; i++) {
+    try { if (map.getSource(`route-${i}`)) map.removeSource(`route-${i}`); } catch (e) {}
+  }
+
   routeSources = [];
+
+  if (originMarker) {
+    originMarker.remove();
+    originMarker = null;
+  }
+  if (destMarker) {
+    destMarker.remove();
+    destMarker = null;
+  }
+}
+
+function setJourneyEndpoints(startCoords, endCoords, originText, destText) {
+  if (!map || !startCoords || !endCoords) return;
+
+  if (originMarker) originMarker.remove();
+  if (destMarker) destMarker.remove();
+
+  // 1. Origin Marker (Emerald Pulse Pin)
+  const originEl = document.createElement('div');
+  originEl.className = 'origin-pin';
+  originEl.style.width = '24px';
+  originEl.style.height = '24px';
+  originEl.style.borderRadius = '50%';
+  originEl.style.backgroundColor = '#10b981';
+  originEl.style.border = '3px solid #ffffff';
+  originEl.style.boxShadow = '0 0 14px rgba(16, 185, 129, 0.9)';
+  originEl.style.cursor = 'pointer';
+
+  const originPopup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+    <div style="color: #020617; font-family: Inter, sans-serif; padding: 4px;">
+      <b style="font-size: 13px; color: #059669;">🟢 Journey Origin</b>
+      <div style="font-size: 11px; color: #475569; margin-top: 4px;">${escapeHtml(originText || 'Current Location')}</div>
+    </div>
+  `);
+
+  originMarker = new mapboxgl.Marker(originEl)
+    .setLngLat([startCoords[1], startCoords[0]])
+    .setPopup(originPopup)
+    .addTo(map);
+
+  // 2. Destination Marker (Red Flag Pin)
+  const destEl = document.createElement('div');
+  destEl.className = 'dest-pin';
+  destEl.style.width = '24px';
+  destEl.style.height = '24px';
+  destEl.style.borderRadius = '50%';
+  destEl.style.backgroundColor = '#ef4444';
+  destEl.style.border = '3px solid #ffffff';
+  destEl.style.boxShadow = '0 0 14px rgba(239, 68, 68, 0.9)';
+  destEl.style.cursor = 'pointer';
+
+  const destPopup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+    <div style="color: #020617; font-family: Inter, sans-serif; padding: 4px;">
+      <b style="font-size: 13px; color: #dc2626;">🎯 Journey Destination</b>
+      <div style="font-size: 11px; color: #475569; margin-top: 4px;">${escapeHtml(destText || 'Selected Destination')}</div>
+    </div>
+  `);
+
+  destMarker = new mapboxgl.Marker(destEl)
+    .setLngLat([endCoords[1], endCoords[0]])
+    .setPopup(destPopup)
+    .addTo(map);
 }
 
 async function geocode(query) {

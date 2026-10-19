@@ -660,19 +660,76 @@ main {
 .route-card {
   width: 100%;
   text-align: left;
-  padding: 1rem;
+  padding: 1rem 1.15rem;
   border-radius: var(--radius-md);
-  background: rgba(12, 24, 40, 0.65);
+  background: rgba(12, 24, 40, 0.72);
   border: 1px solid var(--border-glass);
   cursor: pointer;
   transition: all var(--transition-fast);
   margin-bottom: 0.75rem;
+  position: relative;
+  overflow: hidden;
 }
 
-.route-card:hover, .route-card.selected {
-  border-color: var(--color-emerald);
+.route-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--route-accent, #64748b);
+  transition: width 0.2s ease, background 0.2s ease;
+}
+
+.route-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.22);
   background: rgba(16, 34, 56, 0.85);
-  box-shadow: var(--shadow-glow-emerald);
+}
+
+.route-card.selected {
+  border-color: var(--route-accent, var(--color-emerald));
+  background: rgba(16, 36, 62, 0.95);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+}
+
+.route-card.selected::before {
+  width: 6px;
+  background: var(--route-accent, var(--color-emerald));
+}
+
+.compare-route-card {
+  transition: all var(--transition-fast);
+}
+
+.compare-route-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.selected-compare-card {
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25) !important;
+}
+
+@keyframes pulseOrigin {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes pulseDest {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.origin-pin {
+  animation: pulseOrigin 2s infinite;
+}
+
+.dest-pin {
+  animation: pulseDest 2s infinite;
 }
 
 .risk-low { color: var(--color-emerald-light); }

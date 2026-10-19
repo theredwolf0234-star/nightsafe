@@ -171,7 +171,12 @@ const server = http.createServer((req, res) => {
         res.end('File not found');
         return;
       }
-      const headers = { 'Content-Type': contentType };
+      const headers = {
+        'Content-Type': contentType,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      };
       if (ext === '.apk') {
         headers['Content-Disposition'] = 'attachment; filename="SafeRoute-AI.apk"';
       }

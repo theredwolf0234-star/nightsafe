@@ -173,9 +173,20 @@ class AIRiskEngine:
         sampled_coords = self.sample_coordinates(coords, max_samples=35)
         total_segments = len(sampled_coords)
 
-        # Primary route (index 0) is typically highway/arterial
-        # Alternative routes (index 1, 2) often traverse residential or shortcuts
-        base_lighting_tier = 92.0 if route_index == 0 else max(40.0, 78.0 - (route_index * 16.0))
+        # Primary route (index 0) is typically arterial
+        # Alternative corridors offer varied security and illumination profiles
+        if route_index == 0:
+            base_lighting_tier = 92.0
+        elif route_index == 1:
+            base_lighting_tier = 86.0
+        elif route_index == 2:
+            base_lighting_tier = 89.0
+        elif route_index == 3:
+            base_lighting_tier = 82.0
+        elif route_index == 4:
+            base_lighting_tier = 68.0
+        else:
+            base_lighting_tier = max(40.0, 75.0 - (route_index * 10.0))
 
         segment_evaluations = []
         route_havens = {}
@@ -288,15 +299,38 @@ class AIRiskEngine:
             risk_color = "#ef4444"  # Red
 
         # Corridor Classification
+        # Corridor Classification
+        cctv_score = 90
         if route_index == 0:
+            route_title = "Primary Lit Route (AI Guardian Recommended)"
             corridor = "Primary Arterial Corridor (High-Lumen Streetlights)"
-            surveillance = "Dense CCTV Grid (High)"
+            surveillance = "Dense Municipal CCTV Grid (High)"
+            cctv_score = 90
         elif route_index == 1:
-            corridor = "Secondary Urban Arterial (Mixed Commercial)"
-            surveillance = "Moderate Municipal CCTV"
+            route_title = "Well-Lit Commercial Boulevard"
+            corridor = "Major Commercial Avenue (Active Storefronts & Streetlamps)"
+            surveillance = "Active Commercial & Municipal CCTV (High)"
+            cctv_score = 82
+        elif route_index == 2:
+            route_title = "Safe-Haven Patrol Corridor"
+            corridor = "Emergency Checkpoint Route (Police & Hospital Vicinity)"
+            surveillance = "Police Booth & Emergency Hub Security (Very High)"
+            cctv_score = 86
+        elif route_index == 3:
+            route_title = "Express Arterial Highway"
+            corridor = "High-Capacity Ring Road / Lighted Arterial Expressway"
+            surveillance = "Traffic Monitoring & High-Speed Highway Cameras"
+            cctv_score = 78
+        elif route_index == 4:
+            route_title = "Fastest Direct Route (Speed Priority)"
+            corridor = "Direct Radial Arterials & Mixed Connecting Roads"
+            surveillance = "Moderate / Spotty CCTV Coverage (Medium)"
+            cctv_score = 55
         else:
-            corridor = "Interior Residential / Unmonitored Bypass"
-            surveillance = "Sparse / Spotty Private CCTV"
+            route_title = f"Alternative Route {route_index + 1}"
+            corridor = "Secondary Urban Corridor"
+            surveillance = "Standard Municipal CCTV"
+            cctv_score = max(30, 60 - route_index * 10)
 
         # Hazard alerts generation
         hazard_warnings = []
@@ -321,7 +355,7 @@ class AIRiskEngine:
 
         return {
             "route_index": route_index,
-            "title": "Primary Lit Route (AI Guardian Recommended)" if route_index == 0 else f"Alternative Route {route_index}",
+            "title": route_title,
             "distance_km": round(distance_km, 1),
             "duration_min": duration_min,
             "safety_score": composite_score,
@@ -335,7 +369,7 @@ class AIRiskEngine:
                 "lighting_score": overall_lighting,
                 "haven_proximity_score": round(avg_haven),
                 "incident_avoidance_score": round(100.0 - avg_incident),
-                "cctv_coverage_score": 88 if route_index == 0 else (65 if route_index == 1 else 38),
+                "cctv_coverage_score": cctv_score,
                 "temporal_vulnerability_penalty": round((1.0 - time_factor) * 100),
                 "exposure_factor": round(mode_mult, 2)
             },
