@@ -3,7 +3,7 @@ services:
     name: nightsafe
     env: node
     plan: free
-    buildCommand: ""
+    buildCommand: "npm run build"
     startCommand: node backend/server.js
     healthCheckPath: /api/health
     envVars:
