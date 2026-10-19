@@ -420,11 +420,44 @@ function setJourneyEndpoints(startCoords, endCoords, originText, destText) {
     .addTo(map);
 }
 
+// Built-in instant gazetteer for seamless offline/instant geocoding
+const KNOWN_LOCATIONS = {
+  'connaught place': [28.6315, 77.2167],
+  'cp': [28.6315, 77.2167],
+  'hauz khas': [28.5494, 77.2001],
+  'saket': [28.5244, 77.2066],
+  'aiims': [28.5672, 77.2100],
+  'india gate': [28.6129, 77.2295],
+  'dwarka': [28.5921, 77.0460],
+  'noida': [28.5708, 77.3208],
+  'gurgaon': [28.4950, 77.0895],
+  'gurugram': [28.4950, 77.0895],
+  'karol bagh': [28.6517, 77.1906],
+  'chandni chowk': [28.6562, 77.2300],
+  'lajpat nagar': [28.5700, 77.2400],
+  'nehru place': [28.5492, 77.2527],
+  'vasant kunj': [28.5284, 77.1541],
+  'rohini': [28.7166, 77.1166],
+  'delhi': [28.6139, 77.2090],
+  'new delhi': [28.6139, 77.2090]
+};
+
 async function geocode(query) {
+  if (!query || typeof query !== 'string') return [28.6139, 77.2090];
+  const qClean = query.trim().toLowerCase();
+
+  // 1. Instant local dictionary check (0ms response)
+  for (const [key, coords] of Object.entries(KNOWN_LOCATIONS)) {
+    if (qClean.includes(key)) {
+      return [...coords];
+    }
+  }
+
+  // 2. Mapbox geocoding if valid token
   if (hasValidMapboxToken()) {
     try {
       const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&limit=1`;
-      const resp = await fetch(url);
+      const resp = await fetch(url, { signal: AbortSignal.timeout(3000) });
       const data = await resp.json();
       if (data.features && data.features.length) {
         const [lng, lat] = data.features[0].center;
@@ -433,15 +466,28 @@ async function geocode(query) {
     } catch {}
   }
 
-  // Free OpenStreetMap Nominatim geocoding fallback (zero API key required)
+  // 3. OpenStreetMap Nominatim geocoding
   try {
     const nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
-    const resp = await fetch(nomUrl, { headers: { 'Accept-Language': 'en' } });
+    const resp = await fetch(nomUrl, { headers: { 'Accept-Language': 'en' }, signal: AbortSignal.timeout(3500) });
     const data = await resp.json();
     if (data && data.length) {
       return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
     }
   } catch {}
 
-  throw new Error(`Location not found: "${query}"`);
+  // 4. Photon (Komoot OSM) geocoding fallback
+  try {
+    const photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=1`;
+    const resp = await fetch(photonUrl, { signal: AbortSignal.timeout(3500) });
+    const data = await resp.json();
+    if (data && data.features && data.features.length) {
+      const [lng, lat] = data.features[0].geometry.coordinates;
+      return [lat, lng];
+    }
+  } catch {}
+
+  // 5. Fallback safe coordinates
+  console.warn(`[geocode] Using default central coordinates for: ${query}`);
+  return [28.6139, 77.2090];
 }

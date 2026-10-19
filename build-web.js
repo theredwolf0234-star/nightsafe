@@ -43,4 +43,14 @@ if (fs.existsSync(androidWwwDir)) {
   console.log('[Build] Synced updated web assets to android assets www directory.');
 }
 
-console.log('[Build] Successfully prepared public/ output directory for Vercel!');
+// Also sync web files to frontend directory if present
+const frontendDir = path.join(__dirname, 'frontend');
+if (fs.existsSync(frontendDir)) {
+  copyRecursive(path.join(__dirname, 'index.html'), path.join(frontendDir, 'index.html'));
+  copyRecursive(path.join(__dirname, 'css'), path.join(frontendDir, 'css'));
+  copyRecursive(path.join(__dirname, 'js'), path.join(frontendDir, 'js'));
+  copyRecursive(path.join(__dirname, 'backend', 'ai_risk_engine'), path.join(frontendDir, 'backend', 'ai_risk_engine'));
+  console.log('[Build] Synced updated web assets to frontend directory.');
+}
+
+console.log('[Build] Successfully prepared public/ output directory for Vercel & Render!');

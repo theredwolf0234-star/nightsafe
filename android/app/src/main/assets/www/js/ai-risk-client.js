@@ -9,12 +9,11 @@ class SafeRouteRiskClient {
     this.backendAvailable = false;
     this.dbStats = null;
     this.localEngine = null;
+    this.initLocalEngine();
     this.init();
   }
 
-  async init() {
-    await this.checkBackendStatus();
-    // Initialize client fallback engine if needed
+  initLocalEngine() {
     if (typeof AIRiskEngine !== 'undefined') {
       const defaultHavens = [
         { id: "SH-101", name: "Connaught Place Police Station & 24/7 Booth", lat: 28.6315, lng: 77.2167, type: "police" },
@@ -40,6 +39,11 @@ class SafeRouteRiskClient {
         incidents: defaultIncidents
       });
     }
+  }
+
+  async init() {
+    this.initLocalEngine();
+    await this.checkBackendStatus();
   }
 
   async checkBackendStatus() {

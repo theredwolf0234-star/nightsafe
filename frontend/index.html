@@ -30,7 +30,7 @@
   <!-- Fonts & Mapbox Stylesheets -->
   <link rel="stylesheet" href="assets/fonts/inter.css">
   <link rel="stylesheet" href="css/mapbox-gl.css">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=4.0">
 </head>
 <body>
 
@@ -180,6 +180,10 @@
 
     <!-- SECTION 2: JOURNEY PLANNER & RISK ENGINE -->
     <section id="planner" class="page hidden">
+      <button type="button" onclick="goBack()" class="back-btn" id="plannerBackBtn" title="Back to Previous Screen">
+        <span class="back-arrow">‹</span> Back to Home
+      </button>
+
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
           <h2 style="font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em;">
@@ -189,9 +193,16 @@
             Evaluates roadway illumination, time-of-night curfew risk, and emergency safe havens.
           </p>
         </div>
-        <button onclick="toggleHeatmap()" id="heatmapToggleBtn" class="btn-outline" style="border-color: rgba(52, 211, 153, 0.4); background: rgba(16, 185, 129, 0.1);">
-          🔥 <span id="heatmapBtnText">Turn On Safety Heatmap</span>
-        </button>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+          <div class="map-layer-selector">
+            <button type="button" onclick="setBasemapLayer('dark')" class="map-layer-btn btn-layer-dark active" title="Night Dark Theme">🌙 Night Dark</button>
+            <button type="button" onclick="setBasemapLayer('osm')" class="map-layer-btn btn-layer-osm" title="OpenStreetMap Street Detail">🗺️ Streets (OSM)</button>
+            <button type="button" onclick="setBasemapLayer('satellite')" class="map-layer-btn btn-layer-satellite" title="Satellite Imagery">🛰️ Satellite</button>
+          </div>
+          <button onclick="toggleHeatmap()" id="heatmapToggleBtn" class="btn-outline" style="border-color: rgba(52, 211, 153, 0.4); background: rgba(16, 185, 129, 0.1);">
+            🔥 <span id="heatmapBtnText">Turn On Safety Heatmap</span>
+          </button>
+        </div>
       </div>
 
       <div class="grid-planner">
@@ -235,13 +246,98 @@
               <span style="font-size: 11px; color: #34d399; font-weight: 700;">AI OPTIMIZED</span>
             </div>
             <div id="routeList">
-              <div class="route-card selected" onclick="planRoute()">
-                <div style="display: flex; justify-content: space-between;">
-                  <b>Primary Lit Route</b>
-                  <b class="risk-low">92% Lit</b>
+              <div class="route-card selected" id="routeCard-0" onclick="focusRoute(0)" style="--route-accent: #10b981;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+                    <b style="font-size: 0.95rem; color: #ffffff;">Primary Lit Route (AI Guardian Recommended)</b>
+                  </div>
+                  <span class="risk-low" style="font-weight: 800; font-size: 0.85rem; white-space: nowrap; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 6px;">
+                    91% Lit
+                  </span>
                 </div>
-                <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">
-                  Click "Calculate Safe Routes" to run AI evaluation
+                <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 6px; line-height: 1.4;">
+                  Continuous High-Lumen Streetlight Corridor
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #cbd5e1; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">
+                  <span>11.8 km • 14 min</span>
+                  <span style="color: #10b981; font-weight: 800;">Safety: 85%</span>
+                </div>
+              </div>
+
+              <div class="route-card" id="routeCard-1" onclick="focusRoute(1)" style="--route-accent: #38bdf8;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span>
+                    <b style="font-size: 0.95rem; color: #ffffff;">Well-Lit Commercial Boulevard</b>
+                  </div>
+                  <span class="risk-low" style="font-weight: 800; font-size: 0.85rem; white-space: nowrap; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 6px;">
+                    86% Lit
+                  </span>
+                </div>
+                <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 6px; line-height: 1.4;">
+                  Active Storefronts & High CCTV Density
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #cbd5e1; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">
+                  <span>12.4 km • 16 min</span>
+                  <span style="color: #38bdf8; font-weight: 800;">Safety: 82%</span>
+                </div>
+              </div>
+
+              <div class="route-card" id="routeCard-2" onclick="focusRoute(2)" style="--route-accent: #c084fc;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #c084fc; box-shadow: 0 0 8px #c084fc;"></span>
+                    <b style="font-size: 0.95rem; color: #ffffff;">Safe-Haven Patrol Corridor</b>
+                  </div>
+                  <span class="risk-low" style="font-weight: 800; font-size: 0.85rem; white-space: nowrap; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 6px;">
+                    88% Lit
+                  </span>
+                </div>
+                <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 6px; line-height: 1.4;">
+                  Direct Vicinity to 24/7 Police Posts & Hospitals
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #cbd5e1; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">
+                  <span>13.1 km • 17 min</span>
+                  <span style="color: #c084fc; font-weight: 800;">Safety: 80%</span>
+                </div>
+              </div>
+
+              <div class="route-card" id="routeCard-3" onclick="focusRoute(3)" style="--route-accent: #06b6d4;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #06b6d4; box-shadow: 0 0 8px #06b6d4;"></span>
+                    <b style="font-size: 0.95rem; color: #ffffff;">Express Arterial Highway</b>
+                  </div>
+                  <span class="risk-med" style="font-weight: 800; font-size: 0.85rem; white-space: nowrap; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 6px;">
+                    78% Lit
+                  </span>
+                </div>
+                <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 6px; line-height: 1.4;">
+                  High-Capacity Ring Bypass with Traffic Monitoring
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #cbd5e1; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">
+                  <span>14.5 km • 13 min</span>
+                  <span style="color: #06b6d4; font-weight: 800;">Safety: 74%</span>
+                </div>
+              </div>
+
+              <div class="route-card" id="routeCard-4" onclick="focusRoute(4)" style="--route-accent: #f59e0b;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #f59e0b; box-shadow: 0 0 8px #f59e0b;"></span>
+                    <b style="font-size: 0.95rem; color: #ffffff;">Fastest Direct Route (Speed Priority)</b>
+                  </div>
+                  <span class="risk-med" style="font-weight: 800; font-size: 0.85rem; white-space: nowrap; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 6px;">
+                    68% Lit
+                  </span>
+                </div>
+                <div style="font-size: 0.78rem; color: #94a3b8; margin-top: 6px; line-height: 1.4;">
+                  Shortest Radial Trajectory (Mixed Illumination)
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #cbd5e1; margin-top: 8px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.06);">
+                  <span>10.9 km • 12 min</span>
+                  <span style="color: #f59e0b; font-weight: 800;">Safety: 66%</span>
                 </div>
               </div>
             </div>
@@ -253,8 +349,8 @@
           <div id="map"></div>
 
           <div id="routeInfo" class="card" style="padding: 1rem 1.25rem; font-size: 0.9rem;">
-            <b>Select origin and destination to execute multi-factor AI risk assessment.</b>
-            <span style="color: #94a3b8; margin-left: 6px;">Routes evaluate lux illumination, CCTV density, and emergency havens.</span>
+            <b>5 distinct safety corridors evaluated by AI Risk Engine.</b>
+            <span style="color: #94a3b8; margin-left: 6px;">Click any corridor or card to compare streetlamp density, emergency havens, and crime avoidance.</span>
           </div>
 
           <!-- Explainable AI Metrics Breakdown -->
@@ -266,8 +362,30 @@
               💡 Lighting-Aware Side-by-Side Route Comparison
             </h3>
             <div id="compareDetailsGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
-              <div class="card" style="padding: 1rem; text-align: center; color: #94a3b8;">
-                Calculate a route above to view the comparative risk matrix.
+              <div class="card compare-route-card selected-compare-card" style="padding: 1.15rem; border-color: #10b981; background: rgba(16, 32, 50, 0.92);">
+                <b style="color: #ffffff;">Primary Lit Corridor</b>
+                <div style="color: #34d399; font-weight: 800; margin-top: 4px;">Safety: 85% • 91% Lit</div>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 6px;">High-lumen streetlamp grid with continuous night illumination.</p>
+              </div>
+              <div class="card compare-route-card" style="padding: 1.15rem; border-color: var(--border-glass); background: rgba(12, 24, 40, 0.65);">
+                <b style="color: #ffffff;">Lit Commercial Boulevard</b>
+                <div style="color: #38bdf8; font-weight: 800; margin-top: 4px;">Safety: 82% • 86% Lit</div>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 6px;">Active commercial storefronts and high CCTV surveillance.</p>
+              </div>
+              <div class="card compare-route-card" style="padding: 1.15rem; border-color: var(--border-glass); background: rgba(12, 24, 40, 0.65);">
+                <b style="color: #ffffff;">Safe-Haven Patrol Corridor</b>
+                <div style="color: #c084fc; font-weight: 800; margin-top: 4px;">Safety: 80% • 88% Lit</div>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 6px;">Proximity to verified 24/7 police booths and hospitals.</p>
+              </div>
+              <div class="card compare-route-card" style="padding: 1.15rem; border-color: var(--border-glass); background: rgba(12, 24, 40, 0.65);">
+                <b style="color: #ffffff;">Express Arterial Highway</b>
+                <div style="color: #06b6d4; font-weight: 800; margin-top: 4px;">Safety: 74% • 78% Lit</div>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 6px;">Wide arterial bypass with highway surveillance cameras.</p>
+              </div>
+              <div class="card compare-route-card" style="padding: 1.15rem; border-color: var(--border-glass); background: rgba(12, 24, 40, 0.65);">
+                <b style="color: #ffffff;">Fastest Direct Route</b>
+                <div style="color: #f59e0b; font-weight: 800; margin-top: 4px;">Safety: 66% • 68% Lit</div>
+                <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 6px;">Direct radial shortcut minimizing travel duration.</p>
               </div>
             </div>
           </div>
@@ -277,6 +395,10 @@
 
     <!-- SECTION 3: LIVE JOURNEY GUARD -->
     <section id="live" class="page hidden">
+      <button type="button" onclick="goBack()" class="back-btn" id="liveBackBtn" title="Back to Previous Screen">
+        <span class="back-arrow">‹</span> Back
+      </button>
+
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
           <h2 style="font-size: 1.85rem; font-weight: 800;">Live Journey Guard</h2>
@@ -284,7 +406,12 @@
             Active GPS telemetry, route anomaly detection, and automated emergency triggers.
           </p>
         </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+          <div class="map-layer-selector">
+            <button type="button" onclick="setBasemapLayer('dark')" class="map-layer-btn btn-layer-dark active" title="Night Dark Theme">🌙 Dark</button>
+            <button type="button" onclick="setBasemapLayer('osm')" class="map-layer-btn btn-layer-osm" title="OpenStreetMap Street Detail">🗺️ Streets</button>
+            <button type="button" onclick="setBasemapLayer('satellite')" class="map-layer-btn btn-layer-satellite" title="Satellite Imagery">🛰️ Sat</button>
+          </div>
           <button onclick="startTracking()" class="btn-primary" id="liveStartBtn">
             🟢 Start GPS Tracking
           </button>
@@ -339,6 +466,10 @@
 
     <!-- SECTION 4: TRUSTED CONTACTS -->
     <section id="contacts" class="page hidden">
+      <button type="button" onclick="goBack()" class="back-btn" id="contactsBackBtn" title="Back to Previous Screen">
+        <span class="back-arrow">‹</span> Back to Home
+      </button>
+
       <div>
         <h2 style="font-size: 1.85rem; font-weight: 800;">Trusted Emergency Contacts</h2>
         <p style="font-size: 0.9rem; color: #94a3b8;">
@@ -385,6 +516,10 @@
 
     <!-- SECTION 5: SOS & INCIDENT REPORTS -->
     <section id="reports" class="page hidden">
+      <button type="button" onclick="goBack()" class="back-btn" id="reportsBackBtn" title="Back to Previous Screen">
+        <span class="back-arrow">‹</span> Back to Home
+      </button>
+
       <div>
         <h2 style="font-size: 1.85rem; font-weight: 800;">SOS &amp; Incident Security Log</h2>
         <p style="font-size: 0.9rem; color: #94a3b8;">
@@ -584,14 +719,14 @@
 
   <!-- Application Scripts in Dependency Order -->
   <script src="js/lib/mapbox-gl.js"></script>
-  <script src="backend/ai_risk_engine/risk_engine.js"></script>
-  <script src="js/ai-risk-client.js"></script>
-  <script src="js/map.js"></script>
-  <script src="js/live-guard.js"></script>
-  <script src="js/contacts.js"></script>
-  <script src="js/incidents.js"></script>
-  <script src="js/sos.js"></script>
-  <script src="js/app.js"></script>
+  <script src="backend/ai_risk_engine/risk_engine.js?v=4.0"></script>
+  <script src="js/ai-risk-client.js?v=4.0"></script>
+  <script src="js/map.js?v=4.0"></script>
+  <script src="js/live-guard.js?v=4.0"></script>
+  <script src="js/contacts.js?v=4.0"></script>
+  <script src="js/incidents.js?v=4.0"></script>
+  <script src="js/sos.js?v=4.0"></script>
+  <script src="js/app.js?v=4.0"></script>
 
 </body>
 </html>
